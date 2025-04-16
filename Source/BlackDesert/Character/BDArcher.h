@@ -26,4 +26,6 @@ protected:
 private:
 	// GA_BP_ArcherAttack Blueprint class reference
 	TSubclassOf<class UGameplayAbility> ArcherAttackAbilityBPClass;
+
+	TSubclassOf<class UGameplayAbility> ArcherPrimaryAttackAbilityBPClass;
 };

@@ -9,14 +9,25 @@
 ABDArcher::ABDArcher()
 {
 	// /Script/Engine.Blueprint'/Game/Blueprint/GA/GA_BP_ArcherAttack.GA_BP_ArcherAttack'
-	// /Script/Engine.Blueprint'/Game/Blueprint/GA/GA_BP_ArcherAttack.GA_BP_ArcherAttack'
+
 	static ConstructorHelpers::FClassFinder<UGameplayAbility> ArcherAttackBP(
 		TEXT("/Game/Blueprint/GA/GA_BP_ArcherAttack")
+	);
+
+
+	// /Script/Engine.Blueprint'/Game/Blueprint/GA/GA_BP_ArcherPrimary.GA_BP_ArcherPrimary'
+
+	static ConstructorHelpers::FClassFinder<UGameplayAbility> ArcherPrimaryAttackBP(
+		TEXT("/Game/Blueprint/GA/GA_BP_ArcherPrimary")
 	);
 
 	if (ArcherAttackBP.Succeeded())
 	{
 		ArcherAttackAbilityBPClass = ArcherAttackBP.Class;
+	}
+	if (ArcherPrimaryAttackBP.Succeeded())
+	{
+		ArcherPrimaryAttackAbilityBPClass = ArcherPrimaryAttackBP.Class;
 	}
 }
 
@@ -28,12 +39,19 @@ void ABDArcher::BeginPlay()
 
 void ABDArcher::InitializeAbilities()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("BD_LOG InitializeAbilities: %s"), *ArcherAttackAbilityBPClass->GetName());
 	if (AbilitySystemComponent && ArcherAttackAbilityBPClass)
 	{
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG InitializeAbilities"));
 		// "Input.Action.Attack" 태그는 GA_BP_ArcherAttack 안에 있어야 함
-		FGameplayAbilitySpec Spec(ArcherAttackAbilityBPClass, 1, 0);
-		AbilitySystemComponent->GiveAbility(Spec);
+		FGameplayAbilitySpec AttackSpec(ArcherAttackAbilityBPClass, 1);
+		AbilitySystemComponent->GiveAbility(AttackSpec);
 	}
+	if (AbilitySystemComponent && ArcherPrimaryAttackAbilityBPClass)
+	{
+		UE_LOG(LogTemp, Log, TEXT("BD_LOG Primary Archer Attack InitializeAbilities"));
+		// "Input.Action.Attack" 태그는 GA_BP_ArcherAttack 안에 있어야 함
+		FGameplayAbilitySpec PrimaryAttackSpec(ArcherPrimaryAttackAbilityBPClass, 1);
+		AbilitySystemComponent->GiveAbility(PrimaryAttackSpec);
+	}
+
 }

@@ -44,21 +44,17 @@ void UBDGA_ArcherAttack::ActivateAbility(
         FVector MuzzleLocation = Character->GetActorLocation() + Character->GetActorForwardVector() * 100.0f + FVector(0, 0, 50.0f);
         FRotator MuzzleRotation = Character->GetActorRotation(); // 캐릭터 바라보는 방향
 
+
         //  궤적 이펙트 실행
         if (ShootEffectVFX)
         {
-            FVector Direction = Character->GetActorForwardVector(); // 캐릭터 바라보는 방향
-            MuzzleLocation = Character->GetActorLocation() + Direction * 100.0f + FVector(0, 0, 50.0f);
-            MuzzleRotation = Direction.Rotation();  // ← 여기서 방향 회전값 재설정
-
             UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                 GetWorld(),
                 ShootEffectVFX,
                 MuzzleLocation,
-                MuzzleRotation
+                MuzzleRotation + FRotator(0.f, -90.f, 0.f)
             );
 
-            UE_LOG(LogTemp, Warning, TEXT("BD_LOG ShootEffectVFX Spawned at Direction %s"), *Direction.ToString());
         }
 
         FActorSpawnParameters SpawnParams;

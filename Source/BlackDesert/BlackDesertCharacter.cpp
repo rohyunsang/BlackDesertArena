@@ -117,8 +117,14 @@ void ABlackDesertCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlackDesertCharacter::Look);
 
-		// 
+		// Dash
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::Dash);
+
+		// Attacks
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::Attack);
+		EnhancedInputComponent->BindAction(PrimaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::PrimaryAttack);
+		EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::SecondaryAttack);
+		EnhancedInputComponent->BindAction(UltimateAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::UltimateAttack);
 	}
 	else
 	{
@@ -162,6 +168,11 @@ void ABlackDesertCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void ABlackDesertCharacter::Dash()
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG Dash"));
+}
+
 void ABlackDesertCharacter::Attack()
 {
 	if (AbilitySystemComponent)
@@ -170,6 +181,39 @@ void ABlackDesertCharacter::Attack()
 
 
 		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Attack"));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
+	}
+}
+
+void ABlackDesertCharacter::PrimaryAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG PrimaryAttack()"));
+
+	if (AbilitySystemComponent)
+	{
+		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Primary"));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
+	}
+}
+
+void ABlackDesertCharacter::SecondaryAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG SecondaryAttack()"));
+
+	if (AbilitySystemComponent)
+	{
+		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Secondary"));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
+	}
+}
+
+void ABlackDesertCharacter::UltimateAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG UltimateAttack()"));
+
+	if (AbilitySystemComponent)
+	{
+		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Ultimate"));
 		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
 	}
 }
