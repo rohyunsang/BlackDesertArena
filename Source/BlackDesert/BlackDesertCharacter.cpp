@@ -171,6 +171,15 @@ void ABlackDesertCharacter::Look(const FInputActionValue& Value)
 void ABlackDesertCharacter::Dash()
 {
 	UE_LOG(LogTemp, Log, TEXT("BD_LOG Dash"));
+
+	if (Controller)
+	{
+		FVector DashDirection = GetActorForwardVector();
+		float DashDistance = 1200.f; // 원하는 거리 조절 가능
+		FVector DashTarget = GetActorLocation() + DashDirection * DashDistance;
+
+		LaunchCharacter(DashDirection * DashDistance, true, true);
+	}
 }
 
 void ABlackDesertCharacter::Attack()
