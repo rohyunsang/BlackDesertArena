@@ -16,7 +16,12 @@ ABDArcherProjectile::ABDArcherProjectile()
 	// Collision Component
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComp"));
 	CollisionComp->InitSphereRadius(5.0f);
-	CollisionComp->SetCollisionProfileName("Projectile");
+	// CollisionComp->SetCollisionProfileName("Projectile");
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionComp->SetCollisionObjectType(ECC_GameTraceChannel1); // Projectile 채널일 경우
+	CollisionComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
 	RootComponent = CollisionComp;
 	CollisionComp->OnComponentHit.AddDynamic(this, &ABDArcherProjectile::OnHit);
 

@@ -12,6 +12,7 @@ public class BlackDesert : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", 
 			"GameplayAbilities", "GameplayTags", "GameplayTasks",
+            "AIModule",
             "Niagara",
             "OnlineSubsystem",
             "OnlineSubsystemEOS",
