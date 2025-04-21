@@ -7,11 +7,18 @@
 #include "BDPawnSensingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABDNeutralMonsterBase::ABDNeutralMonsterBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+
+	// 캐릭터 회전을 컨트롤러가 직접 제어하도록 설정
+	bUseControllerRotationYaw = true;
+
+	// MovementComponent 설정
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	HealthComp = CreateDefaultSubobject<UBDHealthComponent>(TEXT("HealthComp"));
 	FSMComp = CreateDefaultSubobject<UBDMonsterFSMComponent>(TEXT("FSMComp"));

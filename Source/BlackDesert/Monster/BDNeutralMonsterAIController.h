@@ -23,7 +23,11 @@ public:
 	/** 추격 시작 (FSM 에서 호출) */
 	void StartChase(APawn* InTarget);
 
+	/** Patrol */
+	void StartPatrol();
+
 protected:
+	virtual void Tick(float DeltaTime) override;
 	virtual void OnPossess(APawn* InPawn) override;
 
 	/** MoveTo 종료 콜백 */
@@ -31,7 +35,7 @@ protected:
 
 	/** 공격 사거리(거리 ≤ AttackRange → Attack 상태) */
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float AttackRange = 200.f;
+	float AttackRange = 400.f;
 
 private:
 	UPROPERTY()
@@ -42,5 +46,13 @@ private:
 
 	UPROPERTY()
 	APawn* TargetPawn = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float PatrolRadius = 500.f;
+
+private:
+	FVector GetRandomPatrolLocation() const;
+
+
 };
 

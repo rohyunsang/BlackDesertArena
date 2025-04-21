@@ -13,7 +13,8 @@
 #include "GameplayAbilitySpec.h"
 #include "GA/BDGA_BasicAttack.h" 
 #include "GA/BDGA_ArcherAttack.h"
-
+#include "Character/Attribute/BDAttributeSet.h"
+#include "GameplayEffect.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -60,6 +61,7 @@ ABlackDesertCharacter::ABlackDesertCharacter()
 
 	// Ability 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	
 }
 
 UAbilitySystemComponent* ABlackDesertCharacter::GetAbilitySystemComponent() const
@@ -81,11 +83,30 @@ void ABlackDesertCharacter::BeginPlay()
 		}
 	}
 
+	UBDAttributeSet* Set = NewObject<UBDAttributeSet>(this);
+	AbilitySystemComponent->AddAttributeSetSubobject(Set);
+
 	// Ability
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		InitializeAbilities();
+
+		AttributeSet = AbilitySystemComponent->GetSet<UBDAttributeSet>();
+
+		// BeginPlay 또는 적절한 초기화 위치에서
+		if (DefaultAttributeEffect)
+		{
+			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+			EffectContext.AddSourceObject(this);
+
+			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.f, EffectContext);
+			if (SpecHandle.IsValid())
+			{
+				AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
+		}
+
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG ASC "));
 	}
 	else
@@ -225,4 +246,35 @@ void ABlackDesertCharacter::UltimateAttack()
 		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Ultimate"));
 		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
 	}
+}
+
+
+float ABlackDesertCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+	AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG %s Attacked! Damage: %.1f (by %s)"),
+		*GetName(), DamageAmount, *GetNameSafe(DamageCauser));
+
+	if (AbilitySystemComponent && DamageGameplayEffectClass)
+	{
+		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+		ContextHandle.AddSourceObject(DamageCauser);
+
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DamageGameplayEffectClass, 1.f, ContextHandle);
+		if (SpecHandle.IsValid())
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), -DamageAmount);
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+
+	// 현재 체력 로그 출력
+	if (const UBDAttributeSet* AttrSet = AbilitySystemComponent->GetSet<UBDAttributeSet>())
+	{
+		UE_LOG(LogTemp, Log, TEXT("BD_LOG %s Current Health: %.1f"), *GetName(), AttrSet->GetHealth());
+	}
+
+	return ActualDamage;
 }

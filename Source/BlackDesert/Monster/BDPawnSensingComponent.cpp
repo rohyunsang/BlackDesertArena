@@ -7,7 +7,7 @@ UBDPawnSensingComponent::UBDPawnSensingComponent()
 {
 	// 기본값을 프로젝트에 맞게 조정
 	SightRadius = 1200.f;
-	SetPeripheralVisionAngle(60.f);
+	SetPeripheralVisionAngle(180.f);
 
 	HearingThreshold = 800.f;
 	LOSHearingThreshold = 1000.f;

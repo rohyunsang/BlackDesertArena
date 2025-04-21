@@ -68,7 +68,7 @@ public:
 
 public:
 	// GAS Component
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -98,10 +98,25 @@ protected:
 
 	virtual void InitializeAbilities();  // Give Ability 
 
+	// Attribute 초기값 세팅용 GameplayEffect 클래스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS|Attributes")
+	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
+	
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GAS")
+	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
+	const class UBDAttributeSet* AttributeSet;
 };
 

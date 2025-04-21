@@ -38,6 +38,22 @@ private:
 
 	// 간단 확인용
 	void HandleIdle(float Delta);
+	void HandlePatrol(float Delta);
+	void HandleChase(float Delta);
+	void HandleAttack(float Delta);
 	void HandleDead(float Delta);
+
+private:
+	float LastAttackTime = 0.f;
+	float AttackCooldown = 2.f; // 1초 쿨타임
+	float AttackRange = 200.f;
+	float AttackDamage = 10.f;
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* AttackMontage;
+
+	void PlayAttackMontage();
+	void PerformAttackHitCheck();
 		
 };
