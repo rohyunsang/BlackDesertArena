@@ -98,9 +98,17 @@ protected:
 
 	virtual void InitializeAbilities();  // Give Ability 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
+	const class UBDAttributeSet* AttributeSet;
+
 	// Attribute 초기값 세팅용 GameplayEffect 클래스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS|Attributes")
 	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
+
+	// Damage Effect 
+	UPROPERTY(EditDefaultsOnly, Category = "GAS")
+	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
+
 	
 public:
 	/** Returns CameraBoom subobject **/
@@ -108,15 +116,8 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-
-
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator, AActor* DamageCauser) override;
-
-	UPROPERTY(EditDefaultsOnly, Category = "GAS")
-	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS|Attributes", meta = (AllowPrivateAccess = "true"))
-	const class UBDAttributeSet* AttributeSet;
+	
 };
 

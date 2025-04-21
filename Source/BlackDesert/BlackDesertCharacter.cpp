@@ -83,15 +83,15 @@ void ABlackDesertCharacter::BeginPlay()
 		}
 	}
 
-	UBDAttributeSet* Set = NewObject<UBDAttributeSet>(this);
-	AbilitySystemComponent->AddAttributeSetSubobject(Set);
-
+	
 	// Ability
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		InitializeAbilities();
 
+		UBDAttributeSet* Set = NewObject<UBDAttributeSet>(this);
+		AbilitySystemComponent->AddAttributeSetSubobject(Set);
 		AttributeSet = AbilitySystemComponent->GetSet<UBDAttributeSet>();
 
 		// BeginPlay 또는 적절한 초기화 위치에서
