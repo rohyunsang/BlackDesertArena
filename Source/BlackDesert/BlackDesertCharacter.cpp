@@ -46,16 +46,22 @@ ABlackDesertCharacter::ABlackDesertCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
+	// Camera Boom 설정 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = 600.0f;
+	CameraBoom->bUsePawnControlRotation = false; // 플레이어 회전에 따라 움직이지 않도록
+	CameraBoom->bInheritPitch = false; // Pitch 회전을 상속받지 않음
+	CameraBoom->bInheritYaw = true; // Yaw 회전만 따라가도록
+	CameraBoom->bInheritRoll = false; // Roll 회전을 상속받지 않음
+	CameraBoom->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+	CameraBoom->SetUsingAbsoluteRotation(true); // 절대 회전 사용
+	CameraBoom->SetWorldRotation(FRotator(-30.0f, 0.0f, 0.0f)); // 월드 기준 회전 설정
 
-	// Create a follow camera
+	// Follow Camera 설정 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
