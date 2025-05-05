@@ -7,6 +7,9 @@
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "UI/BDHealthBarWidget.h"
+#include "GameplayEffectTypes.h"
+#include "GameplayEffectExtension.h"
 #include "BlackDesertCharacter.generated.h"
 
 class USpringArmComponent;
@@ -81,12 +84,16 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+public:
+	UFUNCTION(BlueprintCallable)
 	void Dash();
-
+	UFUNCTION(BlueprintCallable)
 	void Attack();
-
+	UFUNCTION(BlueprintCallable)
 	void PrimaryAttack();
+	UFUNCTION(BlueprintCallable)
 	void SecondaryAttack();
+	UFUNCTION(BlueprintCallable)
 	void UltimateAttack();
 
 protected:
@@ -118,6 +125,18 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator, AActor* DamageCauser) override;
+
+
+
+public:
+	//UI
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UBDHealthBarWidget> HealthBarWidgetClass;
 	
+	UPROPERTY()
+	UBDHealthBarWidget* HealthBarWidget;
+		// Add this function declaration
+	UFUNCTION()
+	void HandleHealthChanged(float Health, float MaxHealth);
 };
 

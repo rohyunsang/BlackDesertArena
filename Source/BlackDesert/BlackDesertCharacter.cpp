@@ -15,6 +15,8 @@
 #include "GA/BDGA_ArcherAttack.h"
 #include "Character/Attribute/BDAttributeSet.h"
 #include "GameplayEffect.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/BDHealthBarWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -62,6 +64,8 @@ ABlackDesertCharacter::ABlackDesertCharacter()
 	// Ability 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	
+
+
 }
 
 UAbilitySystemComponent* ABlackDesertCharacter::GetAbilitySystemComponent() const
@@ -83,7 +87,6 @@ void ABlackDesertCharacter::BeginPlay()
 		}
 	}
 
-	
 	// Ability
 	if (AbilitySystemComponent)
 	{
@@ -94,25 +97,64 @@ void ABlackDesertCharacter::BeginPlay()
 		AbilitySystemComponent->AddAttributeSetSubobject(Set);
 		AttributeSet = AbilitySystemComponent->GetSet<UBDAttributeSet>();
 
+		// 델리게이트 바인딩 시 생성한 직접 참조를 사용
+		if (Set)
+		{
+			Set->OnHealthChanged.AddDynamic(this, &ABlackDesertCharacter::HandleHealthChanged);
+		}
+
 		// BeginPlay 또는 적절한 초기화 위치에서
 		if (DefaultAttributeEffect)
 		{
 			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 			EffectContext.AddSourceObject(this);
-
 			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.f, EffectContext);
 			if (SpecHandle.IsValid())
 			{
 				AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 			}
 		}
-
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG ASC "));
 	}
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG NO ASC "));
 	}
+
+	// Mobile Touch Input 
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = true;
+	}
+
+	// UI 초기화는 다음 틱에 실행하여 모든 초기화가 완료된 후 실행되도록 함
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			APlayerController* PC = Cast<APlayerController>(GetController());
+			if (PC && HealthBarWidgetClass)
+			{
+				UE_LOG(LogTemp, Log, TEXT("BD_LOG HealthBarWidgetClass"));
+				HealthBarWidget = CreateWidget<UBDHealthBarWidget>(PC, HealthBarWidgetClass);
+				if (HealthBarWidget)
+				{
+					UE_LOG(LogTemp, Log, TEXT("BD_LOG HealthBarWidget"));
+					HealthBarWidget->AddToViewport();
+
+					// Make sure AttributeSet is valid before using it
+					if (AttributeSet)
+					{
+						UE_LOG(LogTemp, Log, TEXT("BD_LOG AttributeSet"));
+						float HealthPercent = AttributeSet->GetHealth() / FMath::Max(1.0f, AttributeSet->GetMaxHealth());
+						HealthBarWidget->SetHealthPercent(HealthPercent);
+					}
+				}
+			}
+		});
 }
 
 void ABlackDesertCharacter::InitializeAbilities()
@@ -277,4 +319,18 @@ float ABlackDesertCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	}
 
 	return ActualDamage;
+}
+
+
+// Add this new function to handle health changes
+void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth)
+{
+	if (HealthBarWidget)
+	{
+		float HealthPercent = Health / FMath::Max(1.0f, MaxHealth);
+		HealthBarWidget->SetHealthPercent(HealthPercent);
+
+		UE_LOG(LogTemp, Log, TEXT("BD_LOG Health Widget Updated: %.1f%% (%.1f/%.1f)"),
+			HealthPercent * 100.0f, Health, MaxHealth);
+	}
 }

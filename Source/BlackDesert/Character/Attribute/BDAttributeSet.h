@@ -7,6 +7,10 @@
 #include "AbilitySystemComponent.h"
 #include "BDAttributeSet.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, Health, float, MaxHealth);
+
+
 // ATTRIBUTE_ACCESSORS 매크로: 주어진 속성에 대한 접근자 함수들을 자동으로 생성합니다.
 // ClassName은 클래스 이름, PropertyName은 속성 이름을 인자로 받습니다.
 // 이 매크로는 속성의 getter, setter 및 초기화 함수를 정의합니다.
@@ -34,6 +38,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UBDAttributeSet, MaxHealth)
+
+public:
+	// 체력 변경 이벤트
+	UPROPERTY()
+	FOnHealthChanged OnHealthChanged;
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
