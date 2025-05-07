@@ -28,5 +28,7 @@ public:
 	/** 데미지 적용 (음수면 회복도 가능) */
 	void ApplyDamage(float Amount);
 
+private:
+	bool bIsDead = false;
 		
 };

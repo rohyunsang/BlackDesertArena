@@ -9,6 +9,7 @@
 class UBDHealthComponent;
 class UBDMonsterFSMComponent;
 class UBDPawnSensingComponent;
+class UBDMonsterDropComponent;
 
 UCLASS()
 class BLACKDESERT_API ABDNeutralMonsterBase : public ACharacter
@@ -30,6 +31,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
 	UBDPawnSensingComponent* SensingComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBDMonsterDropComponent* DropComp;
+
+	void DestroyAfterDeath();
 
 	/** Sensing ฤÝน้ */
 	UFUNCTION() void OnSeePawn(APawn* Pawn);

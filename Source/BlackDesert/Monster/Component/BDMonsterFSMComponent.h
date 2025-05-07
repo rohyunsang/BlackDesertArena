@@ -48,10 +48,14 @@ private:
 	float AttackCooldown = 2.f; // 1ÃÊ ÄðÅ¸ÀÓ
 	float AttackRange = 200.f;
 	float AttackDamage = 10.f;
+	bool bDeadHandled = false;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* DeadMontage;
 
 	void PlayAttackMontage();
 	void PerformAttackHitCheck();

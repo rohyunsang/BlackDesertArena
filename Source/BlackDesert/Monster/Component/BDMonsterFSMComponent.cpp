@@ -39,6 +39,14 @@ void UBDMonsterFSMComponent::SetState(EMonsterState NewState)
 {
 	if (State == NewState) return;
 
+	// 이미 Dead 상태라면 상태 변경을 허용하지 않음
+	if (State == EMonsterState::Dead)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[FSM] Ignoring state change to %s: Monster is already dead"),
+			*UEnum::GetValueAsString(NewState));
+		return;
+	}
+
 	// 이전 상태 캐시
 	EMonsterState PrevState = State;
 	State = NewState;
@@ -149,7 +157,26 @@ void UBDMonsterFSMComponent::HandleAttack(float Delta)
 
 void UBDMonsterFSMComponent::HandleDead(float)
 {
+	// 이미 처리된 경우 바로 반환
+	if (bDeadHandled)
+		return;
+
+	bDeadHandled = true;
+
 	UE_LOG(LogTemp, Log, TEXT("[%s] Monster State : Dead"), *GetOwner()->GetName());
+
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (!OwnerCharacter)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !DeadMontage)
+	{
+		return;
+	}
+	AnimInstance->Montage_Play(DeadMontage);
 }
 
 

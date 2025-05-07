@@ -4,6 +4,7 @@
 #include "Monster/BDNeutralMonsterBase.h"
 #include "Component/BDHealthComponent.h"
 #include "Component/BDMonsterFSMComponent.h"
+#include "Component/BDMonsterDropComponent.h"
 #include "BDPawnSensingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
@@ -23,6 +24,7 @@ ABDNeutralMonsterBase::ABDNeutralMonsterBase()
 	HealthComp = CreateDefaultSubobject<UBDHealthComponent>(TEXT("HealthComp"));
 	FSMComp = CreateDefaultSubobject<UBDMonsterFSMComponent>(TEXT("FSMComp"));
 	SensingComp = CreateDefaultSubobject<UBDPawnSensingComponent>(TEXT("SensingComp"));
+	DropComp = CreateDefaultSubobject<UBDMonsterDropComponent>(TEXT("DropComp"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AAIController::StaticClass();
@@ -47,7 +49,15 @@ void ABDNeutralMonsterBase::HandleDeath()
 {
 	FSMComp->SetState(EMonsterState::Dead);
 	// 죽음 애니메이션/루팅/Destroy  딜레이 등 추가
-	Destroy();
+
+	// 아이템 드롭 처리
+	if (DropComp)
+	{
+		DropComp->DropLoot();
+	}
+
+	FTimerHandle DestroyTimerHandle;
+	GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ABDNeutralMonsterBase::DestroyAfterDeath, 1.3f, false);
 }
 
 float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -59,4 +69,9 @@ float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& 
 		HealthComp->ApplyDamage(DamageAmount);
 	}
 	return DamageAmount;
+}
+
+void ABDNeutralMonsterBase::DestroyAfterDeath()
+{
+	Destroy();
 }
