@@ -10,6 +10,7 @@
 #include "UI/BDHealthBarWidget.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayEffectExtension.h"
+#include "Component/BDInventoryComponent.h"
 #include "BlackDesertCharacter.generated.h"
 
 class USpringArmComponent;
@@ -82,7 +83,9 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
+	void LookStarted(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void LookComplete(const FInputActionValue& Value);
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -138,5 +141,21 @@ public:
 		// Add this function declaration
 	UFUNCTION()
 	void HandleHealthChanged(float Health, float MaxHealth);
+
+
+public:
+	// Inventory
+	// 인벤토리 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBDInventoryComponent* Inventory;
+
+	// 아이템 획득 함수
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool PickupItem(class ABDDropItem* DroppedItem);
+
+	// 획득 이벤트 (UI 표시 등에 사용)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+	void OnItemPickedUp(const FString& ItemName, UTexture2D* ItemIcon);
+
 };
 

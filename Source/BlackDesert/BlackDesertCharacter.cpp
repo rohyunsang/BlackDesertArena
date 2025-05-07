@@ -17,6 +17,9 @@
 #include "GameplayEffect.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/BDHealthBarWidget.h"
+#include "Component/BDInventoryComponent.h"
+#include "Item/BDDropItem.h"
+#include "Item/BDItemBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,11 +55,11 @@ ABlackDesertCharacter::ABlackDesertCharacter()
 	CameraBoom->TargetArmLength = 600.0f;
 	CameraBoom->bUsePawnControlRotation = false; // 플레이어 회전에 따라 움직이지 않도록
 	CameraBoom->bInheritPitch = false; // Pitch 회전을 상속받지 않음
-	CameraBoom->bInheritYaw = true; // Yaw 회전만 따라가도록
+	CameraBoom->bInheritYaw = false; // Yaw 회전도 상속받지 않도록 변경
 	CameraBoom->bInheritRoll = false; // Roll 회전을 상속받지 않음
 	CameraBoom->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
-	CameraBoom->SetUsingAbsoluteRotation(true); // 절대 회전 사용
-	CameraBoom->SetWorldRotation(FRotator(-30.0f, 0.0f, 0.0f)); // 월드 기준 회전 설정
+	// 초기 회전값 설정
+	CameraBoom->SetRelativeRotation(FRotator(-30.0f, 0.0f, 0.0f));
 
 	// Follow Camera 설정 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -70,7 +73,10 @@ ABlackDesertCharacter::ABlackDesertCharacter()
 	// Ability 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	
+	// Inventory
+	Inventory = CreateDefaultSubobject<UBDInventoryComponent>(TEXT("InventoryComponent"));
 
+	// Camera
 
 }
 
@@ -161,6 +167,9 @@ void ABlackDesertCharacter::BeginPlay()
 				}
 			}
 		});
+
+
+
 }
 
 void ABlackDesertCharacter::InitializeAbilities()
@@ -184,7 +193,9 @@ void ABlackDesertCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABlackDesertCharacter::Move);
 
 		// Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Started,   this, &ABlackDesertCharacter::LookStarted);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlackDesertCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &ABlackDesertCharacter::LookComplete);
 
 		// Dash
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::Dash);
@@ -223,18 +234,17 @@ void ABlackDesertCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
+void ABlackDesertCharacter::LookStarted(const FInputActionValue& Value)
+{
 
+}
 void ABlackDesertCharacter::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+}
+void ABlackDesertCharacter::LookComplete(const FInputActionValue& Value)
+{
+
 }
 
 void ABlackDesertCharacter::Dash()
@@ -338,5 +348,50 @@ void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth)
 
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG Health Widget Updated: %.1f%% (%.1f/%.1f)"),
 			HealthPercent * 100.0f, Health, MaxHealth);
+	}
+}
+
+bool ABlackDesertCharacter::PickupItem(ABDDropItem* DroppedItem)
+{
+	
+	if (!DroppedItem || !Inventory)
+	{
+		return false;
+	}
+
+	FString ItemID = DroppedItem->ItemID;
+	int32 Quantity = DroppedItem->Quantity;
+
+	EInventoryResult Result = Inventory->AddItemByID(ItemID, Quantity);
+	if (Result == EInventoryResult::Success)
+	{
+		// 아이템 데이터 가져와서 UI 업데이트 이벤트 호출
+		FBDItemData ItemData = Inventory->GetItemData(ItemID);
+		OnItemPickedUp(ItemData.ItemName, ItemData.ItemIcon);
+
+		UE_LOG(LogTemp, Log, TEXT("BD_LOG %s picked up %s x%d"),
+			*GetName(), *ItemData.ItemName, Quantity);
+
+		// 월드에서 아이템 제거
+		DroppedItem->Destroy();
+		return true;
+	}
+	else
+	{
+		// 실패 메시지 - 나중에 UI로 표시 가능
+		switch (Result)
+		{
+		case EInventoryResult::Failed_InventoryFull:
+			UE_LOG(LogTemp, Warning, TEXT("BD_LOG Inventory is full"));
+			break;
+		case EInventoryResult::Failed_InvalidItem:
+			UE_LOG(LogTemp, Warning, TEXT("BD_LOG Invalid item"));
+			break;
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("BD_LOG Could not add item to inventory"));
+			break;
+		}
+
+		return false;
 	}
 }
