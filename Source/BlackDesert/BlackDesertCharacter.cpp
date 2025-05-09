@@ -20,6 +20,8 @@
 #include "Component/BDInventoryComponent.h"
 #include "Item/BDDropItem.h"
 #include "Item/BDItemBase.h"
+#include "UI/BDInventoryWidget.h"
+#include "UI/BDInventorySlotWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -350,10 +352,8 @@ void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth)
 			HealthPercent * 100.0f, Health, MaxHealth);
 	}
 }
-
 bool ABlackDesertCharacter::PickupItem(ABDDropItem* DroppedItem)
 {
-	
 	if (!DroppedItem || !Inventory)
 	{
 		return false;
@@ -362,23 +362,17 @@ bool ABlackDesertCharacter::PickupItem(ABDDropItem* DroppedItem)
 	FString ItemID = DroppedItem->ItemID;
 	int32 Quantity = DroppedItem->Quantity;
 
+	// 인벤토리에 아이템 추가 (UI 업데이트는 컴포넌트에서 처리)
 	EInventoryResult Result = Inventory->AddItemByID(ItemID, Quantity);
 	if (Result == EInventoryResult::Success)
 	{
-		// 아이템 데이터 가져와서 UI 업데이트 이벤트 호출
-		FBDItemData ItemData = Inventory->GetItemData(ItemID);
-		OnItemPickedUp(ItemData.ItemName, ItemData.ItemIcon);
-
-		UE_LOG(LogTemp, Log, TEXT("BD_LOG %s picked up %s x%d"),
-			*GetName(), *ItemData.ItemName, Quantity);
-
 		// 월드에서 아이템 제거
 		DroppedItem->Destroy();
 		return true;
 	}
 	else
 	{
-		// 실패 메시지 - 나중에 UI로 표시 가능
+		// 실패 메시지 처리
 		switch (Result)
 		{
 		case EInventoryResult::Failed_InventoryFull:
@@ -393,5 +387,15 @@ bool ABlackDesertCharacter::PickupItem(ABDDropItem* DroppedItem)
 		}
 
 		return false;
+	}
+}
+
+
+
+void ABlackDesertCharacter::ToggleInventory()
+{
+	if (Inventory)
+	{
+		Inventory->ToggleInventoryUI();
 	}
 }

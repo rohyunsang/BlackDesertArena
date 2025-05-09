@@ -11,8 +11,21 @@ void UBDInventorySlotWidget::SetItemData(const FInventoryItem& InItemData)
 
     if (ItemIcon)
     {
-        ItemIcon->SetBrushFromTexture(InItemData.ItemIcon, true);
-        ItemIcon->SetVisibility(ESlateVisibility::Visible);
+        if (InItemData.ItemIcon)
+        {
+            ItemIcon->SetBrushFromTexture(InItemData.ItemIcon, true);
+            ItemIcon->SetVisibility(ESlateVisibility::Visible);
+            UE_LOG(LogTemp, Log, TEXT("BD_LOG SetItemData: Set icon for %s"), *InItemData.ItemName);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("BD_LOG SetItemData: No icon for %s"), *InItemData.ItemName);
+            ItemIcon->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("BD_LOG SetItemData: No ItemIcon widget!"));
     }
 
     if (QuantityText)
@@ -21,11 +34,17 @@ void UBDInventorySlotWidget::SetItemData(const FInventoryItem& InItemData)
         {
             QuantityText->SetText(FText::AsNumber(InItemData.Quantity));
             QuantityText->SetVisibility(ESlateVisibility::Visible);
+            UE_LOG(LogTemp, Log, TEXT("BD_LOG SetItemData: Set quantity %d for %s"),
+                InItemData.Quantity, *InItemData.ItemName);
         }
         else
         {
             QuantityText->SetVisibility(ESlateVisibility::Collapsed);
         }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("BD_LOG SetItemData: No QuantityText widget!"));
     }
 }
 

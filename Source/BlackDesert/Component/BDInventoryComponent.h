@@ -8,6 +8,7 @@
 #include "BDInventoryComponent.generated.h"
 
 class UBDItemBase;
+class UBDInventoryWidget;
 
 // 아이템 데이터 테이블 구조체
 USTRUCT(BlueprintType)
@@ -150,4 +151,32 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     void PrintInventory() const;
+
+    // 인벤토리 위젯 클래스 참조
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|UI")
+    TSubclassOf<UBDInventoryWidget> InventoryWidgetClass;
+
+    // 인벤토리 위젯 인스턴스
+    UPROPERTY()
+    UBDInventoryWidget* InventoryWidget;
+
+    // 인벤토리 UI 생성 및 초기화
+    UFUNCTION(BlueprintCallable, Category = "Inventory|UI")
+    UBDInventoryWidget* CreateInventoryWidget(APlayerController* PC);
+
+    // 인벤토리 UI 표시/숨김 토글
+    UFUNCTION(BlueprintCallable, Category = "Inventory|UI")
+    void ToggleInventoryUI();
+
+    // 인벤토리 UI 업데이트
+    UFUNCTION(BlueprintCallable, Category = "Inventory|UI")
+    void UpdateInventoryUI();
+
+    // 아이템 획득 시 효과 처리
+    UFUNCTION(BlueprintCallable, Category = "Inventory|UI")
+    void OnItemPickedUp(const FString& ItemID, int32 Quantity);
+
+    // 아이템 ID로 아이템 이름과 아이콘 가져오기
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    void GetItemNameAndIcon(const FString& ItemID, FString& OutName, UTexture2D*& OutIcon);
 };

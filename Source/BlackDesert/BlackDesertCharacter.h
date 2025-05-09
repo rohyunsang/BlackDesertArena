@@ -153,9 +153,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool PickupItem(class ABDDropItem* DroppedItem);
 
-	// 획득 이벤트 (UI 표시 등에 사용)
-	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
-	void OnItemPickedUp(const FString& ItemName, UTexture2D* ItemIcon);
 
+	// 인벤토리 토글 함수
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void ToggleInventory();
 };
 
