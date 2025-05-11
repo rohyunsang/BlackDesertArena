@@ -46,7 +46,7 @@ private:
 private:
 	float LastAttackTime = 0.f;
 	float AttackCooldown = 2.f; // 1초 쿨타임
-	float AttackRange = 200.f;
+	float AttackRange = 300.f;  // 공격시 범위 
 	float AttackDamage = 10.f;
 	bool bDeadHandled = false;
 

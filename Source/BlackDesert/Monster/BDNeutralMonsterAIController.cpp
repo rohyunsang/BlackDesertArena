@@ -5,11 +5,14 @@
 #include "Component/BDMonsterFSMComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "BDNeutralMonsterBase.h"
 
 ABDNeutralMonsterAIController::ABDNeutralMonsterAIController()
 {
 	// AIController Tick 필요 없으면 꺼도 됨
 	PrimaryActorTick.bCanEverTick = true;
+
+	// 
 }
 
 void ABDNeutralMonsterAIController::Tick(float DeltaTime)
@@ -66,6 +69,12 @@ void ABDNeutralMonsterAIController::OnPossess(APawn* InPawn)
 		// FSM 컴포넌트 캐싱
 		FSM = ControlledPawn->FindComponentByClass<UBDMonsterFSMComponent>();
 	}
+
+	// 사거리 설정: Pawn에서 가져오기
+	if (const ABDNeutralMonsterBase* Monster = Cast<ABDNeutralMonsterBase>(InPawn))
+	{
+		AttackRange = Monster->AttackRange;
+	}
 }
 
 void ABDNeutralMonsterAIController::StartChase(APawn* InTarget)
@@ -85,7 +94,7 @@ void ABDNeutralMonsterAIController::StartChase(APawn* InTarget)
 	float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), TargetPawn->GetActorLocation());
 	UE_LOG(LogTemp, Warning, TEXT("[AI] Distance to Target: %.1f"), Distance);
 
-	EPathFollowingRequestResult::Type Result = MoveToActor(TargetPawn, AttackRange - 10.f, true, true);
+	EPathFollowingRequestResult::Type Result = MoveToActor(TargetPawn, AttackRange - 125.f, true, true);
 	UE_LOG(LogTemp, Warning, TEXT("[AI] MoveToActor Result: %d"), (int32)Result);
 }
 

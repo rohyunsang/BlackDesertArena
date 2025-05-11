@@ -19,8 +19,12 @@ class BLACKDESERT_API ABDNeutralMonsterBase : public ACharacter
 public:
 	ABDNeutralMonsterBase();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float AttackRange = 300.f;  // 몬스터마다 에디터에서 개별 설정
+
 protected:
 	virtual void BeginPlay() override;
+	
 
 	/** 컴포넌트 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")

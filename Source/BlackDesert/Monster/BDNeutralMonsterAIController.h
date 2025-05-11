@@ -34,8 +34,8 @@ protected:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	/** 공격 사거리(거리 ≤ AttackRange → Attack 상태) */
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float AttackRange = 400.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
+	float AttackRange = 300.f;   // 공격 사거리 
 
 private:
 	UPROPERTY()
