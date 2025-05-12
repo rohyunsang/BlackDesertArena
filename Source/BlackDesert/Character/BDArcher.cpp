@@ -53,5 +53,4 @@ void ABDArcher::InitializeAbilities()
 		FGameplayAbilitySpec PrimaryAttackSpec(ArcherPrimaryAttackAbilityBPClass, 1);
 		AbilitySystemComponent->GiveAbility(PrimaryAttackSpec);
 	}
-
 }

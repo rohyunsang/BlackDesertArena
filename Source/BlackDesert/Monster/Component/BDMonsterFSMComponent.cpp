@@ -50,11 +50,11 @@ void UBDMonsterFSMComponent::SetState(EMonsterState NewState)
 	// 이전 상태 캐시
 	EMonsterState PrevState = State;
 	State = NewState;
-
+	/*
 	UE_LOG(LogTemp, Warning, TEXT("[FSM] Changing state from %s to %s"),
 		*UEnum::GetValueAsString(PrevState),
 		*UEnum::GetValueAsString(NewState));
-
+	*/
 	// 이동 중이라면 AI 이동 멈춤
 	if (ABDNeutralMonsterAIController* AI = Cast<ABDNeutralMonsterAIController>(Cast<APawn>(GetOwner())->GetController()))
 	{
@@ -85,7 +85,7 @@ void UBDMonsterFSMComponent::HandleIdle(float)
 
 void UBDMonsterFSMComponent::HandlePatrol(float Delta)
 {
-	UE_LOG(LogTemp, Log, TEXT("[%s] Monster State : Patrol"), *GetOwner()->GetName());
+	// UE_LOG(LogTemp, Log, TEXT("[%s] Monster State : Patrol"), *GetOwner()->GetName());
 	// AIController가 MoveTo 호출해서 순찰 이동
 
 	if (AController* Ctrl = Cast<AController>(GetOwner()->GetInstigatorController()))
@@ -133,7 +133,7 @@ void UBDMonsterFSMComponent::HandleAttack(float Delta)
 		return; // 아직 쿨타임 안 지남
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[%s] Monster State : Attack!"), *GetOwner()->GetName());
+	// UE_LOG(LogTemp, Log, TEXT("[%s] Monster State : Attack!"), *GetOwner()->GetName());
 
 	LastAttackTime = CurrentTime;
 

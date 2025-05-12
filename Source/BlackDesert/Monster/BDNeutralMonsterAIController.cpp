@@ -89,13 +89,13 @@ void ABDNeutralMonsterAIController::StartChase(APawn* InTarget)
 
 	TargetPawn = InTarget;
 
-	UE_LOG(LogTemp, Warning, TEXT("[AI] StartChase Called. Target: %s"), *InTarget->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("[AI] StartChase Called. Target: %s"), *InTarget->GetName());
 
 	float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), TargetPawn->GetActorLocation());
-	UE_LOG(LogTemp, Warning, TEXT("[AI] Distance to Target: %.1f"), Distance);
+	//UE_LOG(LogTemp, Warning, TEXT("[AI] Distance to Target: %.1f"), Distance);
 
 	EPathFollowingRequestResult::Type Result = MoveToActor(TargetPawn, AttackRange - 125.f, true, true);
-	UE_LOG(LogTemp, Warning, TEXT("[AI] MoveToActor Result: %d"), (int32)Result);
+	//UE_LOG(LogTemp, Warning, TEXT("[AI] MoveToActor Result: %d"), (int32)Result);
 }
 
 void ABDNeutralMonsterAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
