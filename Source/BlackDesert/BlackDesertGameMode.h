@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Game/BDGameInstance.h"
 #include "BlackDesertGameMode.generated.h"
 
 UCLASS(minimalapi)

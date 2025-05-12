@@ -72,6 +72,10 @@ void UBDClassSelectionWidget::OnStartGameButtonClicked()
     if (GameInstance)
     {
         GameInstance->SetSelectedClass(CurrentSelectedClass);
+
+        // 困连 力芭 - UI俊辑 困连 昏力
+        RemoveFromParent();
+
         GameInstance->LoadGameLevel("Main");
     }
 }
