@@ -73,6 +73,11 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
+# Paragon
+Content/ParagonTerra/
+
+# Paragon
+Content/ParagonPhase/
 
 # Paragon
 Content/ParagonSparrow/
