@@ -297,6 +297,17 @@ void ABlackDesertCharacter::SecondaryAttack()
 	}
 }
 
+void ABlackDesertCharacter::TertiaryAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG TertiaryAttack()"));
+
+	if (AbilitySystemComponent)
+	{
+		const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Input.Action.Tertiary"));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(AttackTag));
+	}
+}
+
 void ABlackDesertCharacter::UltimateAttack()
 {
 	UE_LOG(LogTemp, Log, TEXT("BD_LOG UltimateAttack()"));

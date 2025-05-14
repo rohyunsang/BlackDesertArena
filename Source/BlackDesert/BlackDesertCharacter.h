@@ -97,6 +97,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SecondaryAttack();
 	UFUNCTION(BlueprintCallable)
+	void TertiaryAttack();
+	UFUNCTION(BlueprintCallable)
 	void UltimateAttack();
 
 protected:

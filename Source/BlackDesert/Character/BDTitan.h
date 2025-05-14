@@ -26,5 +26,11 @@ private:
 	// GA_BP_ArcherAttack Blueprint class reference
 	TSubclassOf<class UGameplayAbility> TitanAttackAbilityBPClass;
 
-	TSubclassOf<class UGameplayAbility> TitanPrimaryAttackAbilityBPClass;
+	TSubclassOf<class UGameplayAbility> TitanSkill1AbilityBPClass;
+
+	TSubclassOf<class UGameplayAbility> TitanSkill2AbilityBPClass;
+
+	TSubclassOf<class UGameplayAbility> TitanSkill3AbilityBPClass;
+
+	TSubclassOf<class UGameplayAbility> TitanSkill4AbilityBPClass;
 };
