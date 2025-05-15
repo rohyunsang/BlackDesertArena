@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GA/BDGA_TitanTertiary.h"
+#include "GA/BDGA_CastingAndAttack.h"
 #include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -15,16 +15,15 @@
 #include "GameFramework/DamageType.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-
-UBDGA_TitanTertiary::UBDGA_TitanTertiary()
+UBDGA_CastingAndAttack::UBDGA_CastingAndAttack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
     CurrentAttackCount = 0;
 }
 
-void UBDGA_TitanTertiary::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UBDGA_CastingAndAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    UE_LOG(LogTemp, Warning, TEXT("BD_LOG UBDGA_TitanTertiary::ActivateAbility called!"));
+    UE_LOG(LogTemp, Warning, TEXT("BD_LOG UBDGA_CastingAndAttack::ActivateAbility called!"));
 
     if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
     {
@@ -47,6 +46,16 @@ void UBDGA_TitanTertiary::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         return;
     }
 
+    // 노티파이 콜백 바인딩 - 몽타주가 끝날 때 호출될 함수
+    AnimInstance->OnMontageEnded.AddDynamic(this, &UBDGA_CastingAndAttack::OnMontageEnded);
+
+    // 애니메이션 노티파이 콜백 바인딩 - 특정 노티파이 시점에서 호출될 함수
+    AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UBDGA_CastingAndAttack::OnAttackNotify);
+
+    // 몽타주 재생
+    AnimInstance->Montage_Play(AttackMontage);
+    UE_LOG(LogTemp, Log, TEXT("Titan Attack Montage Played: %s"), *AttackMontage->GetName());
+
     // 첫번째 공격시 캐스팅 이펙트 실행
     if (CastingEffect)
     {
@@ -62,34 +71,17 @@ void UBDGA_TitanTertiary::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         }
     }
 
-    // 플레이어가 바라보는 방향으로 대쉬 이동
-    PerformDash(Character);
-
-
-    // 노티파이 콜백 바인딩 - 몽타주가 끝날 때 호출될 함수
-    AnimInstance->OnMontageEnded.AddDynamic(this, &UBDGA_TitanTertiary::OnMontageEnded);
-
-    // 애니메이션 노티파이 콜백 바인딩 - 특정 노티파이 시점에서 호출될 함수
-    AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UBDGA_TitanTertiary::OnAttackNotify);
-
-    // 몽타주 재생
-    AnimInstance->Montage_Play(AttackMontage);
-    UE_LOG(LogTemp, Log, TEXT("Titan Attack Montage Played: %s"), *AttackMontage->GetName());
-
 
     CurrentAttackCount = 0;
     ExecuteAttack();
 }
 
-void UBDGA_TitanTertiary::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+void UBDGA_CastingAndAttack::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
 }
 
-void UBDGA_TitanTertiary::ExecuteAttack()
+void UBDGA_CastingAndAttack::ExecuteAttack()
 {
-
-
-
     UE_LOG(LogTemp, Log, TEXT("Titan ExecuteAttack()"));
 
     ACharacter* Character = Cast<ACharacter>(GetOwningActorFromActorInfo());
@@ -142,7 +134,6 @@ void UBDGA_TitanTertiary::ExecuteAttack()
     {
         AController* CharacterController = Character->GetController();
 
-        // 첫번째 공격시 스킬 이펙트 실행
         if (SkillEffect)
         {
             if (World)
@@ -168,7 +159,8 @@ void UBDGA_TitanTertiary::ExecuteAttack()
 
             UE_LOG(LogTemp, Log, TEXT("Titan Attack Hit Actor: %s"), *HitActor->GetName());
 
-            if (HitEffect)
+            // 두번째 공격시만 히트 이펙트 실행
+            if (HitEffect && CurrentAttackCount > 0)
             {
                 UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                     World,
@@ -196,10 +188,10 @@ void UBDGA_TitanTertiary::ExecuteAttack()
     }
 }
 
-void UBDGA_TitanTertiary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UBDGA_CastingAndAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     // 더 자세한 로그 추가
-    UE_LOG(LogTemp, Warning, TEXT("Titan Attack Montage Ended: %s, CurrentAttackCount: %d, Interrupted: %d"),
+    UE_LOG(LogTemp, Warning, TEXT("UBDGA_CastingAndAttack Montage Ended: %s, CurrentAttackCount: %d, Interrupted: %d"),
         *Montage->GetName(), CurrentAttackCount, bInterrupted ? 1 : 0);
 
     // 몽타주 비교 검증
@@ -253,33 +245,9 @@ void UBDGA_TitanTertiary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupte
     }
 }
 
-void UBDGA_TitanTertiary::PerformDash(ACharacter* Character)
-{
-    if (!Character) return;
-
-    // 캐릭터가 바라보는 방향 가져오기
-    FVector ForwardVector = Character->GetActorForwardVector();
-
-    float offset = 5.f;
-
-    // 이동할 벡터 계산 (전방 벡터 * 대쉬 거리)
-    FVector DashVector = ForwardVector * DashDistance * offset;
-
-    // Z축 방향은 유지 (땅에서 떨어지지 않도록)
-    if (bPreventFalling)
-    {
-        DashVector.Z = 0.0f;
-    }
-
-    // 캐릭터 발사(대쉬)
-    // 세 번째 매개변수가 true면 현재 속도를 덮어쓰고, false면 현재 속도에 추가
-    Character->LaunchCharacter(DashVector, true, !bPreventFalling);
-
-    UE_LOG(LogTemp, Log, TEXT("Titan Dash performed: %s"), *DashVector.ToString());
-}
 
 
-void UBDGA_TitanTertiary::PerformSecondAttack()
+void UBDGA_CastingAndAttack::PerformSecondAttack()
 {
     UE_LOG(LogTemp, Warning, TEXT("PerformSecondAttack called"));
 

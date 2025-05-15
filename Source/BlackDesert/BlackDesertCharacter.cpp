@@ -206,6 +206,7 @@ void ABlackDesertCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::Attack);
 		EnhancedInputComponent->BindAction(PrimaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::SecondaryAttack);
+		EnhancedInputComponent->BindAction(TertiaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::TertiaryAttack);
 		EnhancedInputComponent->BindAction(UltimateAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::UltimateAttack);
 	}
 	else

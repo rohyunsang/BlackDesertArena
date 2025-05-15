@@ -64,6 +64,9 @@ class ABlackDesertCharacter : public ACharacter, public IAbilitySystemInterface
 	UInputAction* SecondaryAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* TertiaryAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* UltimateAction;
 
 

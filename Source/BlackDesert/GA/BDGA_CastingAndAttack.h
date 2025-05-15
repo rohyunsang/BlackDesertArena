@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GA/BDGA_BasicAttack.h"
-#include "BDGA_TitanTertiary.generated.h"
+#include "BDGA_CastingAndAttack.generated.h"
 
 class UNiagaraSystem;
 
@@ -12,12 +12,12 @@ class UNiagaraSystem;
  * 
  */
 UCLASS()
-class BLACKDESERT_API UBDGA_TitanTertiary : public UBDGA_BasicAttack
+class BLACKDESERT_API UBDGA_CastingAndAttack : public UBDGA_BasicAttack
 {
 	GENERATED_BODY()
-	
+
 public:
-	UBDGA_TitanTertiary();
+	UBDGA_CastingAndAttack();
 
     virtual void ActivateAbility(
         const FGameplayAbilitySpecHandle Handle,
@@ -86,6 +86,5 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Attack|Movement")
     bool bPreventFalling = true;
 
-    UFUNCTION()
-    void PerformDash(ACharacter* Character);
+	
 };

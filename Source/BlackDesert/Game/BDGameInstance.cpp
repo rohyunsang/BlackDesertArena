@@ -2,8 +2,8 @@
 
 
 #include "Game/BDGameInstance.h"
-#include "OnlineSubsystem.h"
-#include "Interfaces/OnlineIdentityInterface.h"
+//#include "OnlineSubsystem.h"
+//#include "Interfaces/OnlineIdentityInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -73,6 +73,7 @@ void UBDGameInstance::LoadGameLevel(FString LevelName)
 
 void UBDGameInstance::TryLoginWithDeviceId()
 {
+    /*
     IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
     if (!Subsystem) return;
 
@@ -98,4 +99,5 @@ void UBDGameInstance::TryLoginWithDeviceId()
         });
 
     Identity->Login(0, Credentials);
+    */
 }

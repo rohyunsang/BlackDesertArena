@@ -8,6 +8,7 @@
 
 ABDArcher::ABDArcher()
 {
+
 	// /Script/Engine.Blueprint'/Game/Blueprint/GA/GA_BP_ArcherAttack.GA_BP_ArcherAttack'
 
 	static ConstructorHelpers::FClassFinder<UGameplayAbility> ArcherAttackBP(

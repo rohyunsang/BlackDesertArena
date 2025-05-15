@@ -10,6 +10,7 @@
 
 ABDTitan::ABDTitan()
 {
+
 	static ConstructorHelpers::FClassFinder<UGameplayAbility> TitanAttackBP(
 		TEXT("/Game/Blueprint/GA/Titan/BPGA_TitanAttack")
 	);
