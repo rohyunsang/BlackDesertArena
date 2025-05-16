@@ -4,21 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GA/BDGA_BasicAttack.h"
-#include "BDGA_FletcherPrimary.generated.h"
+#include "BDGA_FletcherTertiary.generated.h"
 
-// 나이아가라 사용을 위한 선언
+
 class UNiagaraSystem;
 
 /**
  * 
  */
 UCLASS()
-class BLACKDESERT_API UBDGA_FletcherPrimary : public UBDGA_BasicAttack
+class BLACKDESERT_API UBDGA_FletcherTertiary : public UBDGA_BasicAttack
 {
 	GENERATED_BODY()
 
 public:
-	UBDGA_FletcherPrimary();
+	UBDGA_FletcherTertiary();
+
 
     virtual void ActivateAbility(
         const FGameplayAbilitySpecHandle Handle,
@@ -78,8 +79,7 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Attack|Movement")
     bool bPreventFalling = true;
 
+protected: // 또는 public:
     UFUNCTION()
-    void PerformDash(ACharacter* Character);
-
-	
+    virtual void PerformDash(ACharacter* Character);
 };

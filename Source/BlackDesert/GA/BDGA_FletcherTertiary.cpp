@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GA/BDGA_FletcherPrimary.h"
+#include "GA/BDGA_FletcherTertiary.h"
 #include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -17,11 +17,11 @@
 #include "Monster/BDNeutralMonsterBase.h"
 
 
-UBDGA_FletcherPrimary::UBDGA_FletcherPrimary()
+UBDGA_FletcherTertiary::UBDGA_FletcherTertiary()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
-void UBDGA_FletcherPrimary::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UBDGA_FletcherTertiary::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     UE_LOG(LogTemp, Warning, TEXT("BD_LOG GA_TitanAttack::ActivateAbility called!"));
 
@@ -59,27 +59,30 @@ void UBDGA_FletcherPrimary::ActivateAbility(const FGameplayAbilitySpecHandle Han
             );
         }
     }
+    
+    PerformDash(Character);
+
 
     // 노티파이 콜백 바인딩 - 몽타주가 끝날 때 호출될 함수
-    AnimInstance->OnMontageEnded.AddDynamic(this, &UBDGA_FletcherPrimary::OnMontageEnded);
+    AnimInstance->OnMontageEnded.AddDynamic(this, &UBDGA_FletcherTertiary::OnMontageEnded);
 
     // 애니메이션 노티파이 콜백 바인딩 - 특정 노티파이 시점에서 호출될 함수
-    AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UBDGA_FletcherPrimary::OnAttackNotify);
+    AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UBDGA_FletcherTertiary::OnAttackNotify);
 
     // 2. 몽타주 재생
-    AnimInstance->Montage_Play(AttackMontage);
+    AnimInstance->Montage_Play(AttackMontage, 2.f);
     UE_LOG(LogTemp, Log, TEXT("Titan Attack Montage Played: %s"), *AttackMontage->GetName());
 
     // ExecuteAttack() 호출 제거 (몽타주 종료 시 호출로 변경)
 }
 
-void UBDGA_FletcherPrimary::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+void UBDGA_FletcherTertiary::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
 }
 
-void UBDGA_FletcherPrimary::ExecuteAttack()
+void UBDGA_FletcherTertiary::ExecuteAttack()
 {
-    UE_LOG(LogTemp, Log, TEXT("Titan ExecuteAttack()"));
+    UE_LOG(LogTemp, Log, TEXT("Fletcher ExecuteAttack()"));
 
     ACharacter* Character = Cast<ACharacter>(GetOwningActorFromActorInfo());
     if (!Character) return;
@@ -162,10 +165,14 @@ void UBDGA_FletcherPrimary::ExecuteAttack()
 
             if (HitEffect)
             {
+                // ImpactPoint에서 Z축으로 -2 offset 적용
+                FVector EffectLocation = Hit.ImpactPoint;
+                EffectLocation.Z -= 2.0f;  // Z축으로 -2 offset 적용
+
                 UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                     World,
                     HitEffect,
-                    Hit.ImpactPoint,
+                    EffectLocation,
                     FRotator::ZeroRotator
                 );
             }
@@ -189,7 +196,7 @@ void UBDGA_FletcherPrimary::ExecuteAttack()
 }
 
 
-void UBDGA_FletcherPrimary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UBDGA_FletcherTertiary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     if (Montage == AttackMontage)
     {
@@ -206,8 +213,8 @@ void UBDGA_FletcherPrimary::OnMontageEnded(UAnimMontage* Montage, bool bInterrup
             if (AnimInstance)
             {
                 // 바인딩한 델리게이트 제거
-                AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UBDGA_FletcherPrimary::OnAttackNotify);
-                AnimInstance->OnMontageEnded.RemoveDynamic(this, &UBDGA_FletcherPrimary::OnMontageEnded);
+                AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UBDGA_FletcherTertiary::OnAttackNotify);
+                AnimInstance->OnMontageEnded.RemoveDynamic(this, &UBDGA_FletcherTertiary::OnMontageEnded);
             }
         }
 
@@ -219,7 +226,7 @@ void UBDGA_FletcherPrimary::OnMontageEnded(UAnimMontage* Montage, bool bInterrup
 }
 
 
-void UBDGA_FletcherPrimary::PerformDash(ACharacter* Character)
+void UBDGA_FletcherTertiary::PerformDash(ACharacter* Character)
 {
     if (!Character) return;
 
