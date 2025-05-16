@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffect.h"
+#include "UI/BDMagicFieldWidget.h"
 #include "BDSafeZoneActor.generated.h"
 
 class UStaticMeshComponent;
@@ -55,10 +56,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UStaticMeshComponent* ZoneMesh;
 
-private:
+public:
     int32 ActivePhaseIndex = -1;
     float GameTimeSeconds = 0.f;
     float CurrentRadius = 0.f;
+
+private:
     FVector CurrentCenter;
 
     UMaterialInstanceDynamic* DynMat = nullptr;
@@ -67,4 +70,15 @@ private:
     void UpdateZoneScale();
     void ApplyDamageTick();
     bool IsActorOutside(const AActor* Actor) const;
+
+
+public:
+    // public 섹션에 추가
+    UPROPERTY()
+    UBDMagicFieldWidget* MagicFieldWidget;
+
+    void CreateSafeZoneUI();
+
+private:
+    TSubclassOf<UUserWidget> MagicFieldWidgetClass;
 };

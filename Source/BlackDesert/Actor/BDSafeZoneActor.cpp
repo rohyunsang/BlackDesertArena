@@ -6,6 +6,9 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "EngineUtils.h"
+#include "UI/BDMagicFieldWidget.h"
+#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABDSafeZoneActor::ABDSafeZoneActor()
@@ -16,6 +19,26 @@ ABDSafeZoneActor::ABDSafeZoneActor()
     ZoneMesh->SetCollisionProfileName("OverlapAll");
     ZoneMesh->SetGenerateOverlapEvents(true);
     RootComponent = ZoneMesh;
+
+    // 여기에 위젯 클래스 로드
+    static ConstructorHelpers::FClassFinder<UUserWidget> SafeZoneWidgetClass(TEXT("/Game/Blueprint/UI/WB_MagicField"));
+    if (SafeZoneWidgetClass.Succeeded())
+    {
+        MagicFieldWidgetClass = SafeZoneWidgetClass.Class;
+    }
+}
+
+void ABDSafeZoneActor::CreateSafeZoneUI()
+{
+    APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+    if (!PC || !MagicFieldWidgetClass) return;
+
+    MagicFieldWidget = CreateWidget<UBDMagicFieldWidget>(PC, MagicFieldWidgetClass);
+    if (MagicFieldWidget)
+    {
+        MagicFieldWidget->Init(this);
+        MagicFieldWidget->AddToViewport();
+    }
 }
 
 void ABDSafeZoneActor::BeginPlay()
@@ -34,6 +57,10 @@ void ABDSafeZoneActor::BeginPlay()
     }
 
     GetWorldTimerManager().SetTimer(DamageTickHandle, this, &ABDSafeZoneActor::ApplyDamageTick, 1.f, true);
+
+    // UI 생성
+    CreateSafeZoneUI();
+
 }
 
 void ABDSafeZoneActor::Tick(float DeltaTime)
