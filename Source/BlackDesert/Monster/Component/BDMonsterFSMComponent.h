@@ -59,5 +59,9 @@ public:
 
 	void PlayAttackMontage();
 	void PerformAttackHitCheck();
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	float LaunchPower = 2000.f;
 		
 };

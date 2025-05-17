@@ -140,8 +140,6 @@ void UBDMonsterFSMComponent::HandleAttack(float Delta)
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
-		const float LaunchPower = 2000.f;
-
 		// 현재 회전값 가져와서 Yaw +90도 추가
 		FRotator RotatedYaw = OwnerCharacter->GetActorRotation();
 		RotatedYaw.Yaw += 90.f;

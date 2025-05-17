@@ -171,7 +171,14 @@ void ABlackDesertCharacter::BeginPlay()
 		});
 
 
+	// ¹Ì´Ï¸Ê À§Á¬ »ý¼º
+	if (MiniMapWidgetClass)
+	{
+		MiniMapWidget = CreateWidget<UUserWidget>(GetWorld(), MiniMapWidgetClass);
 
+		// ±âº»ÀûÀ¸·Î´Â ¹Ì´Ï¸Ê ¼û±è »óÅÂ·Î ½ÃÀÛ
+		bIsMiniMapVisible = false;
+	}
 }
 
 void ABlackDesertCharacter::InitializeAbilities()
@@ -208,6 +215,9 @@ void ABlackDesertCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::SecondaryAttack);
 		EnhancedInputComponent->BindAction(TertiaryAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::TertiaryAttack);
 		EnhancedInputComponent->BindAction(UltimateAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::UltimateAttack);
+
+		// MiniMap
+		EnhancedInputComponent->BindAction(MiniMapAction, ETriggerEvent::Started, this, &ABlackDesertCharacter::ToggleMiniMap);
 	}
 	else
 	{
@@ -409,5 +419,35 @@ void ABlackDesertCharacter::ToggleInventory()
 	if (Inventory)
 	{
 		Inventory->ToggleInventoryUI();
+	}
+}
+
+void ABlackDesertCharacter::ShowMiniMap()
+{
+	if (MiniMapWidget && !bIsMiniMapVisible)
+	{
+		MiniMapWidget->AddToViewport();
+		bIsMiniMapVisible = true;
+	}
+}
+
+void ABlackDesertCharacter::HideMiniMap()
+{
+	if (MiniMapWidget && bIsMiniMapVisible)
+	{
+		MiniMapWidget->RemoveFromViewport();
+		bIsMiniMapVisible = false;
+	}
+}
+
+void ABlackDesertCharacter::ToggleMiniMap()
+{
+	if (bIsMiniMapVisible)
+	{
+		HideMiniMap();
+	}
+	else
+	{
+		ShowMiniMap();
 	}
 }

@@ -52,7 +52,7 @@ void UBDGA_ArcherAttack::ActivateAbility(
                 GetWorld(),
                 ShootEffectVFX,
                 MuzzleLocation,
-                MuzzleRotation + FRotator(0.f, -90.f, 0.f)
+                MuzzleRotation + FRotator(0.f, 0.f, 0.f)
             );
 
         }

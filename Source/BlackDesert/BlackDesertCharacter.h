@@ -69,6 +69,9 @@ class ABlackDesertCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* UltimateAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MiniMapAction;
+
 
 public:
 	ABlackDesertCharacter();
@@ -162,5 +165,28 @@ public:
 	// 인벤토리 토글 함수
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void ToggleInventory();
+
+
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MiniMapWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MiniMap")
+	class UUserWidget* MiniMapWidget;
+
+	bool bIsMiniMapVisible;
+
+public:
+	// 미니맵 켜기/끄기 함수
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowMiniMap();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void HideMiniMap();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleMiniMap();
 };
 
