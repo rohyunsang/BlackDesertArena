@@ -122,6 +122,25 @@ void UBDGA_TitanAttack::ExecuteAttack()
     {
         AController* CharacterController = Character->GetController();
 
+        if (HitEffect)
+        {
+            if (World)
+            {
+                // HitEffect를 0.3초 후에 실행
+                FTimerHandle TimerHandle;
+                FVector EffectLocation = Character->GetActorLocation();
+                FRotator EffectRotation = Character->GetActorRotation();
+
+                // 타이머 설정: 0.3초 후에 PlayDelayedHitEffect 함수 실행
+                World->GetTimerManager().SetTimer(
+                    TimerHandle,
+                    FTimerDelegate::CreateUObject(this, &UBDGA_TitanAttack::PlayDelayedHitEffect, EffectLocation, EffectRotation),
+                    0.3f,
+                    false
+                );
+            }
+        }
+
         for (const FHitResult& Hit : HitResults)
         {
             AActor* HitActor = Hit.GetActor();
@@ -134,15 +153,6 @@ void UBDGA_TitanAttack::ExecuteAttack()
 
             UE_LOG(LogTemp, Log, TEXT("Titan Attack Hit Actor: %s"), *HitActor->GetName());
 
-            if (HitEffect)
-            {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    World,
-                    HitEffect,
-                    Hit.ImpactPoint,
-                    Hit.ImpactNormal.Rotation()
-                );
-            }
 
             UGameplayStatics::ApplyDamage(
                 HitActor,
@@ -185,5 +195,20 @@ void UBDGA_TitanAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
         // 어빌리티 종료
         K2_EndAbility();
+    }
+}
+
+
+void UBDGA_TitanAttack::PlayDelayedHitEffect(FVector Location, FRotator Rotation)
+{
+    UWorld* World = GetWorld();
+    if (World && HitEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            World,
+            HitEffect,
+            Location,
+            Rotation
+        );
     }
 }

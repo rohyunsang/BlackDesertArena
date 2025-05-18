@@ -142,19 +142,7 @@ void UBDGA_TitanTertiary::ExecuteAttack()
     {
         AController* CharacterController = Character->GetController();
 
-        // 첫번째 공격시 스킬 이펙트 실행
-        if (SkillEffect)
-        {
-            if (World)
-            {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    World,
-                    SkillEffect,
-                    Character->GetActorLocation(),
-                    Character->GetActorRotation()
-                );
-            }
-        }
+        
 
         for (const FHitResult& Hit : HitResults)
         {
@@ -243,6 +231,23 @@ void UBDGA_TitanTertiary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupte
     else if (Montage == SecondAttackMontage || CurrentAttackCount > 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("Ending ability after second attack!"));
+        
+        
+
+        // Fix this part to properly get World and Character
+        ACharacter* Character = Cast<ACharacter>(GetOwningActorFromActorInfo());
+        UWorld* World = GetWorld();
+
+        if (World && Character && SkillEffect2)
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                World,
+                SkillEffect2,
+                Character->GetActorLocation(),
+                Character->GetActorRotation()
+            );
+        }
+
         K2_EndAbility();
         // 콜백 핸들 정리...
     }
@@ -289,6 +294,20 @@ void UBDGA_TitanTertiary::PerformSecondAttack()
         UE_LOG(LogTemp, Error, TEXT("Character is null in PerformSecondAttack"));
         K2_EndAbility();
         return;
+    }
+
+    if (SkillEffect)
+    {
+        UWorld* World = GetWorld();
+        if (World)
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                World,
+                SkillEffect,
+                Character->GetActorLocation(),
+                Character->GetActorRotation()
+            );
+        }
     }
 
     if (!SecondAttackMontage)

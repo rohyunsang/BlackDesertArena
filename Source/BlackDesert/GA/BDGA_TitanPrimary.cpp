@@ -12,13 +12,14 @@
 #include "Actor/BDArcherProjectile.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "GameFramework/DamageType.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-
 UBDGA_TitanPrimary::UBDGA_TitanPrimary()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    AttachedSkillEffect = nullptr;
 }
 
 void UBDGA_TitanPrimary::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -46,6 +47,12 @@ void UBDGA_TitanPrimary::ActivateAbility(const FGameplayAbilitySpecHandle Handle
         return;
     }
 
+    // Attach the skill effect to the character
+    if (SkillEffect)
+    {
+        AttachEffectToCharacter(SkillEffect);
+    }
+
     // 노티파이 콜백 바인딩 - 몽타주가 끝날 때 호출될 함수
     AnimInstance->OnMontageEnded.AddDynamic(this, &UBDGA_TitanPrimary::OnMontageEnded);
 
@@ -58,6 +65,34 @@ void UBDGA_TitanPrimary::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
     ApplySpeedBoost();
     ExecuteAttack();
+}
+
+void UBDGA_TitanPrimary::AttachEffectToCharacter(UNiagaraSystem* EffectToAttach)
+{
+    if (!EffectToAttach) return;
+
+    ACharacter* Character = Cast<ACharacter>(GetOwningActorFromActorInfo());
+    if (!Character) return;
+
+    // Clean up any existing attached effect
+    if (AttachedSkillEffect)
+    {
+        AttachedSkillEffect->DestroyComponent();
+        AttachedSkillEffect = nullptr;
+    }
+
+    // Spawn the effect attached to the character's mesh
+    AttachedSkillEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(
+        EffectToAttach,
+        Character->GetMesh(),  // Attach to the character's mesh
+        NAME_None,             // No specific socket name, attach to root
+        FVector::ZeroVector,   // No offset
+        FRotator::ZeroRotator, // No rotation offset
+        EAttachLocation::SnapToTarget,
+        true                   // Auto destroy when complete
+    );
+
+    UE_LOG(LogTemp, Log, TEXT("Skill Effect attached to character"));
 }
 
 void UBDGA_TitanPrimary::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
@@ -118,6 +153,28 @@ void UBDGA_TitanPrimary::ExecuteAttack()
     {
         AController* CharacterController = Character->GetController();
 
+        if (HitEffect)
+        {
+            if (World)
+            {
+                // HitEffect를 0.3초 후에 실행
+                FTimerHandle TimerHandle;
+                FVector EffectLocation = Character->GetActorLocation();
+                FRotator EffectRotation = Character->GetActorRotation();
+
+                // 타이머 설정: 0.3초 후에 PlayDelayedHitEffect 함수 실행
+                World->GetTimerManager().SetTimer(
+                    TimerHandle,
+                    FTimerDelegate::CreateUObject(this, &UBDGA_TitanPrimary::PlayDelayedHitEffect, EffectLocation, EffectRotation),
+                    0.3f,
+                    false
+                );
+            }
+        }
+
+
+
+
         for (const FHitResult& Hit : HitResults)
         {
             AActor* HitActor = Hit.GetActor();
@@ -130,15 +187,7 @@ void UBDGA_TitanPrimary::ExecuteAttack()
 
             UE_LOG(LogTemp, Log, TEXT("Titan Attack Hit Actor: %s"), *HitActor->GetName());
 
-            if (HitEffect)
-            {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    World,
-                    HitEffect,
-                    Hit.ImpactPoint,
-                    Hit.ImpactNormal.Rotation()
-                );
-            }
+
 
             UGameplayStatics::ApplyDamage(
                 HitActor,
@@ -200,6 +249,13 @@ void UBDGA_TitanPrimary::ResetSpeed()
 
     UE_LOG(LogTemp, Log, TEXT("change to origin character speed : %f"), OriginalMovementSpeed);
 
+    // Clean up the attached effect
+    if (AttachedSkillEffect)
+    {
+        AttachedSkillEffect->DestroyComponent();
+        AttachedSkillEffect = nullptr;
+    }
+
     // 어빌리티 종료
     K2_EndAbility();
 }
@@ -209,6 +265,13 @@ void UBDGA_TitanPrimary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted
     if (Montage == AttackMontage)
     {
         UE_LOG(LogTemp, Log, TEXT("Titan Attack Montage Ended"));
+
+        // Clean up the attached effect
+        if (AttachedSkillEffect)
+        {
+            AttachedSkillEffect->DestroyComponent();
+            AttachedSkillEffect = nullptr;
+        }
 
         // 콜백 핸들 정리
         ACharacter* Character = Cast<ACharacter>(GetOwningActorFromActorInfo());
@@ -234,7 +297,19 @@ void UBDGA_TitanPrimary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted
         }
 
         AlreadyHitActors.Empty();
+    }
+}
 
-        
+void UBDGA_TitanPrimary::PlayDelayedHitEffect(FVector Location, FRotator Rotation)
+{
+    UWorld* World = GetWorld();
+    if (World && HitEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            World,
+            HitEffect,
+            Location,
+            Rotation
+        );
     }
 }

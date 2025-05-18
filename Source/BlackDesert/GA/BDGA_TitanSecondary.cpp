@@ -39,6 +39,9 @@ void UBDGA_TitanSecondary::ActivateAbility(const FGameplayAbilitySpecHandle Hand
         return;
     }
 
+    OwningCharacter = Character;
+
+
     UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
     if (!AnimInstance)
     {
@@ -46,8 +49,7 @@ void UBDGA_TitanSecondary::ActivateAbility(const FGameplayAbilitySpecHandle Hand
         return;
     }
 
-    // 플레이어가 바라보는 방향으로 대쉬 이동
-    PerformDash(Character);
+    
 
 
     // 노티파이 콜백 바인딩 - 몽타주가 끝날 때 호출될 함수
@@ -56,11 +58,33 @@ void UBDGA_TitanSecondary::ActivateAbility(const FGameplayAbilitySpecHandle Hand
     // 애니메이션 노티파이 콜백 바인딩 - 특정 노티파이 시점에서 호출될 함수
     AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UBDGA_TitanSecondary::OnAttackNotify);
 
+
+    if (CastingEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            CastingEffect,
+            Character->GetActorLocation()
+        );
+    }
+
     // 몽타주 재생
     AnimInstance->Montage_Play(AttackMontage);
     UE_LOG(LogTemp, Log, TEXT("Titan Attack Montage Played: %s"), *AttackMontage->GetName());
 
-    ExecuteAttack();
+    // 대시와 공격을 0.7초 후에 실행하도록 타이머 설정
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        FTimerHandle TimerHandle;
+        World->GetTimerManager().SetTimer(
+            TimerHandle,
+            this,
+            &UBDGA_TitanSecondary::DelayedDashAndAttack,
+            0.7f,
+            false
+        );
+    }
 }
 
 void UBDGA_TitanSecondary::OnAttackNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
@@ -121,6 +145,17 @@ void UBDGA_TitanSecondary::ExecuteAttack()
     {
         AController* CharacterController = Character->GetController();
 
+        if (HitEffect)
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                World,
+                HitEffect,
+                Character->GetActorLocation(),  // 플레이어 위치
+                Character->GetActorRotation()   // 플레이어 회전값
+            );
+        }
+
+
         for (const FHitResult& Hit : HitResults)
         {
             AActor* HitActor = Hit.GetActor();
@@ -133,15 +168,7 @@ void UBDGA_TitanSecondary::ExecuteAttack()
 
             UE_LOG(LogTemp, Log, TEXT("Titan Attack Hit Actor: %s"), *HitActor->GetName());
 
-            if (HitEffect)
-            {
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-                    World,
-                    HitEffect,
-                    Hit.ImpactPoint,
-                    Hit.ImpactNormal.Rotation()
-                );
-            }
+            
 
             UGameplayStatics::ApplyDamage(
                 HitActor,
@@ -184,6 +211,15 @@ void UBDGA_TitanSecondary::OnMontageEnded(UAnimMontage* Montage, bool bInterrupt
 
         AlreadyHitActors.Empty();
 
+        if (SkillEffect)
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                GetWorld(),
+                SkillEffect,
+                Character->GetActorLocation()
+            );
+        }
+
         // 어빌리티 종료
         K2_EndAbility();
     }
@@ -212,4 +248,16 @@ void UBDGA_TitanSecondary::PerformDash(ACharacter* Character)
     Character->LaunchCharacter(DashVector, true, !bPreventFalling);
 
     UE_LOG(LogTemp, Log, TEXT("Titan Dash performed: %s"), *DashVector.ToString());
+}
+
+void UBDGA_TitanSecondary::DelayedDashAndAttack()
+{
+    if (OwningCharacter)
+    {
+        // 0.7초 후에 대시 실행
+        PerformDash(OwningCharacter);
+
+        // 대시 후 즉시 공격 실행
+        ExecuteAttack();
+    }
 }

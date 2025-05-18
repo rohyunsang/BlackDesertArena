@@ -55,9 +55,18 @@ public:
     float BaseDamage = 20.0f;
 
 
+    // 캐스팅 시 재생할 이펙트
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
+    UNiagaraSystem* CastingEffect;
+
+    // 스킬 시전시 재생할 이펙트 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
+    UNiagaraSystem* SkillEffect;
+
     // 충돌 시 재생할 이펙트
-    UPROPERTY(EditDefaultsOnly, Category = "Attack|Effects")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
     UNiagaraSystem* HitEffect;
+
 
     // 공격 범위 (전방으로 얼마나 멀리 공격하는지)
     UPROPERTY(EditDefaultsOnly, Category = "Attack|Range")
@@ -75,5 +84,15 @@ private:
 
     UFUNCTION()
     void PerformDash(ACharacter* Character);
+
+
+protected:
+    // 대시와 공격을 지연 실행하는 함수
+    UFUNCTION()
+    void DelayedDashAndAttack();
+
+    // 캐릭터에 대한 레퍼런스 저장용
+    UPROPERTY()
+    ACharacter* OwningCharacter;
 };
 

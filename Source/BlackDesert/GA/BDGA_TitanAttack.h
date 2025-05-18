@@ -62,6 +62,11 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Attack|Range")
     float AttackRange = 150.0f;
 
+protected:
+    // HitEffect를 지연 실행하기 위한 함수
+    UFUNCTION()
+    void PlayDelayedHitEffect(FVector Location, FRotator Rotation);
+
 private:
     TSet<AActor*> AlreadyHitActors;
 

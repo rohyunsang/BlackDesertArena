@@ -9,6 +9,7 @@
 
 // 나이아가라 사용을 위한 선언
 class UNiagaraSystem;
+class UNiagaraComponent;
 
 /**
  * 
@@ -57,6 +58,10 @@ public:
 
     // 충돌 시 재생할 이펙트
     UPROPERTY(EditDefaultsOnly, Category = "Attack|Effects")
+    UNiagaraSystem* SkillEffect;
+
+    // 충돌 시 재생할 이펙트
+    UPROPERTY(EditDefaultsOnly, Category = "Attack|Effects")
     UNiagaraSystem* HitEffect;
 
     // 공격 범위 (전방으로 얼마나 멀리 공격하는지)
@@ -90,4 +95,15 @@ private:
 
     // 원래 이동 속도 저장 변수
     float OriginalMovementSpeed;
+
+protected:
+    // HitEffect를 지연 실행하기 위한 함수
+    UFUNCTION()
+    void PlayDelayedHitEffect(FVector Location, FRotator Rotation);
+
+    UPROPERTY()
+    UNiagaraComponent* AttachedSkillEffect;
+
+    void AttachEffectToCharacter(UNiagaraSystem* EffectToAttach);
+
 };

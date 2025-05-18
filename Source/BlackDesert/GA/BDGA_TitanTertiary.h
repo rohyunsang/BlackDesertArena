@@ -62,6 +62,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
     UNiagaraSystem* SkillEffect;
 
+    // 스킬 시전시 재생할 이펙트 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
+    UNiagaraSystem* SkillEffect2;
+
     // 충돌 시 재생할 이펙트
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack|Effects")
     UNiagaraSystem* HitEffect;
