@@ -127,6 +127,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GAS")
 	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
 
+public:
+	// Exp Effect 
+	UPROPERTY(EditDefaultsOnly, Category = "GAS")
+	TSubclassOf<UGameplayEffect> ExpGameplayEffectClass;
+
 	
 public:
 	/** Returns CameraBoom subobject **/
@@ -147,8 +152,7 @@ public:
 	UPROPERTY()
 	UBDHealthBarWidget* HealthBarWidget;
 		// Add this function declaration
-	UFUNCTION()
-	void HandleHealthChanged(float Health, float MaxHealth);
+
 
 
 public:
@@ -188,5 +192,27 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ToggleMiniMap();
+
+
+public:
+	// Attribute event handlers
+	UFUNCTION()
+	void HandleHealthChanged(float Health, float MaxHealth);
+
+	UFUNCTION()
+	void HandleLevelChanged(int32 NewLevel, float CurrentXP, float RequiredXP);
+
+	UFUNCTION()
+	void AddExperience(float XPAmount);
+
+	// Getter for current character level
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	int32 GetCharacterLevel() const;
+
+	// Getter for current XP information
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void GetExperienceInfo(float& OutCurrentXP, float& OutRequiredXP) const;
+
+
 };
 

@@ -10,6 +10,7 @@ class UBDHealthComponent;
 class UBDMonsterFSMComponent;
 class UBDPawnSensingComponent;
 class UBDMonsterDropComponent;
+class UGameplayEffect;
 
 UCLASS()
 class BLACKDESERT_API ABDNeutralMonsterBase : public ACharacter
@@ -21,6 +22,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float AttackRange = 300.f;  // 몬스터마다 에디터에서 개별 설정
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS")
+	TSubclassOf<UGameplayEffect> ExpGE;
+
+	// 몬스터가 제공할 경험치
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+	float RewardXP;
+
+
+private:
+	// 경험치 보상 처리 함수
+	void RewardXPToPlayer();
 
 protected:
 	virtual void BeginPlay() override;

@@ -90,50 +90,74 @@ UAbilitySystemComponent* ABlackDesertCharacter::GetAbilitySystemComponent() cons
 void ABlackDesertCharacter::BeginPlay()
 {
 	// Call the base class  
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
+    // Add Input Mapping Context
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        {
+            Subsystem->AddMappingContext(DefaultMappingContext, 0);
+        }
+    }
 
-	// Ability
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-		InitializeAbilities();
+    // Initialize ability system
+    if (AbilitySystemComponent)
+    {
+        // Setup actor info
+        AbilitySystemComponent->InitAbilityActorInfo(this, this);
+        
+        // Create and add attribute set
+        UBDAttributeSet* Set = NewObject<UBDAttributeSet>(this);
+        AbilitySystemComponent->AddAttributeSetSubobject(Set);
+        AttributeSet = AbilitySystemComponent->GetSet<UBDAttributeSet>();
 
-		UBDAttributeSet* Set = NewObject<UBDAttributeSet>(this);
-		AbilitySystemComponent->AddAttributeSetSubobject(Set);
-		AttributeSet = AbilitySystemComponent->GetSet<UBDAttributeSet>();
+        // Bind attribute events
+        if (Set)
+        {
+			Set->InitializeLevel(1);
 
-		// 델리게이트 바인딩 시 생성한 직접 참조를 사용
-		if (Set)
-		{
-			Set->OnHealthChanged.AddDynamic(this, &ABlackDesertCharacter::HandleHealthChanged);
-		}
+            // Health change delegate
+            Set->OnHealthChanged.AddDynamic(this, &ABlackDesertCharacter::HandleHealthChanged);
+            
+            // Level change delegate
+            Set->OnLevelChanged.AddDynamic(this, &ABlackDesertCharacter::HandleLevelChanged);
+        }
 
-		// BeginPlay 또는 적절한 초기화 위치에서
-		if (DefaultAttributeEffect)
-		{
-			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-			EffectContext.AddSourceObject(this);
-			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.f, EffectContext);
-			if (SpecHandle.IsValid())
-			{
-				AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			}
-		}
-		UE_LOG(LogTemp, Log, TEXT("BD_LOG ASC "));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("BD_LOG NO ASC "));
-	}
+        // Initialize abilities
+        InitializeAbilities();
+
+        // Apply default attributes
+        if (DefaultAttributeEffect)
+        {
+            FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+            EffectContext.AddSourceObject(this);
+            FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.f, EffectContext);
+            if (SpecHandle.IsValid())
+            {
+                AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+                
+                // Log initial attribute values
+                if (AttributeSet)
+                {
+                    UE_LOG(LogTemp, Log, TEXT("BD_LOG Character initialized with Level: %d, Health: %.1f/%.1f, XP: %.1f/%.1f"),
+                        FMath::FloorToInt(AttributeSet->GetLevel()),
+                        AttributeSet->GetHealth(),
+                        AttributeSet->GetMaxHealth(),
+                        AttributeSet->GetXP(),
+                        AttributeSet->GetNextLevelXP());
+                }
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("BD_LOG DefaultAttributeEffect not set!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("BD_LOG AbilitySystemComponent not found!"));
+    }
 
 	// Mobile Touch Input 
 	APlayerController* PC = Cast<APlayerController>(GetController());
@@ -449,5 +473,58 @@ void ABlackDesertCharacter::ToggleMiniMap()
 	else
 	{
 		ShowMiniMap();
+	}
+}
+
+void ABlackDesertCharacter::HandleLevelChanged(int32 NewLevel, float CurrentXP, float RequiredXP)
+{
+	UE_LOG(LogTemp, Log, TEXT("BD_LOG %s Level Changed to %d! XP: %.1f/%.1f"),
+		*GetName(), NewLevel, CurrentXP, RequiredXP);
+
+	// You can add additional level-up effects here
+	// For example, play a particle effect, sound, or animation
+
+	// Update UI elements if needed
+	// For example, if you have a level display UI
+}
+
+void ABlackDesertCharacter::AddExperience(float XPAmount)
+{
+	if (AbilitySystemComponent && ExpGameplayEffectClass && XPAmount > 0.0f)
+	{
+		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+		ContextHandle.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(ExpGameplayEffectClass, 1.f, ContextHandle);
+		if (SpecHandle.IsValid())
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.XP")), XPAmount);
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+			UE_LOG(LogTemp, Log, TEXT("BD_LOG %s gained %.1f XP"), *GetName(), XPAmount);
+		}
+	}
+}
+
+int32 ABlackDesertCharacter::GetCharacterLevel() const
+{
+	if (AttributeSet)
+	{
+		return FMath::FloorToInt(AttributeSet->GetLevel());
+	}
+	return 1; // Default level if attributes are not available
+}
+
+void ABlackDesertCharacter::GetExperienceInfo(float& OutCurrentXP, float& OutRequiredXP) const
+{
+	if (AttributeSet)
+	{
+		OutCurrentXP = AttributeSet->GetXP();
+		OutRequiredXP = AttributeSet->GetNextLevelXP();
+	}
+	else
+	{
+		OutCurrentXP = 0.0f;
+		OutRequiredXP = 0.0f;
 	}
 }

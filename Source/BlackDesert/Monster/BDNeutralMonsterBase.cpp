@@ -9,6 +9,11 @@
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Character/Attribute/BDAttributeSet.h"
+#include "BlackDesertCharacter.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 ABDNeutralMonsterBase::ABDNeutralMonsterBase()
 {
@@ -28,6 +33,8 @@ ABDNeutralMonsterBase::ABDNeutralMonsterBase()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AAIController::StaticClass();
+
+    // RewardXP = 10.0f;
 }
 
 void ABDNeutralMonsterBase::BeginPlay()
@@ -49,6 +56,9 @@ void ABDNeutralMonsterBase::HandleDeath()
 {
 	FSMComp->SetState(EMonsterState::Dead);
 	// 죽음 애니메이션/루팅/Destroy  딜레이 등 추가
+
+	// 경험치 보상 처리 
+	RewardXPToPlayer();
 
 	// 아이템 드롭 처리
 	if (DropComp)
@@ -74,4 +84,48 @@ float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& 
 void ABDNeutralMonsterBase::DestroyAfterDeath()
 {
 	Destroy();
+}
+
+// 경험치 보상 처리 함수 구현 - 직접 플레이어 캐릭터 접근 방식
+void ABDNeutralMonsterBase::RewardXPToPlayer()
+{
+	if (RewardXP <= 0.0f)
+	{
+		return;
+	}
+
+	// 플레이어 캐릭터 접근
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to find player controller for XP reward."));
+		return;
+	}
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to find player pawn for XP reward."));
+		return;
+	}
+
+	// 플레이어의 AttributeSet 접근
+	ABlackDesertCharacter* BDPlayer = Cast<ABlackDesertCharacter>(PlayerPawn);
+	if (!BDPlayer)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player is not a valid ABlackDesertCharacter."));
+		return;
+	}
+
+	UBDAttributeSet* AttrSet = const_cast<UBDAttributeSet*>(BDPlayer->GetAbilitySystemComponent()->GetSet<UBDAttributeSet>());
+	if (!AttrSet)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get UBDAttributeSet from player."));
+		return;
+	}
+
+	// 경험치 수동 적용
+	AttrSet->AddXP(RewardXP);
+
+	UE_LOG(LogTemp, Log, TEXT("Successfully added %.1f XP to player (manual AddXP)"), RewardXP);
 }
