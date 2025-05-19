@@ -27,7 +27,7 @@ ABDDamageText::ABDDamageText()
 
     // 기본 값
     SetLifeSpan(LifeSpan);
-
+    // /Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/UI/BP_DamageText.BP_DamageText'
     // 위젯 클래스 로드
     static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/Blueprint/UI/BP_DamageText"));
     if (WidgetClassFinder.Succeeded())
@@ -84,8 +84,6 @@ void ABDDamageText::BeginPlay()
 void ABDDamageText::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-
 
     // 텍스트가 천천히 위로 올라가도록 설정
     FVector NewLocation = GetActorLocation();

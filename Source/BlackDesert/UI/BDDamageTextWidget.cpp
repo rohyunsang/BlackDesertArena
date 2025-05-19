@@ -42,8 +42,6 @@ void UBDDamageTextWidget::NativeConstruct()
 void UBDDamageTextWidget::SetDamageValue(float Damage)
 {
     UE_LOG(LogTemp, Warning, TEXT("DamageTextLog SetDamageValue() %f"), Damage);
-
-
     if (!DamageText)
     {
         UE_LOG(LogTemp, Warning, TEXT("DamageTextLog BDDamageTextWidget: DamageText is not assigned"));
@@ -58,6 +56,26 @@ void UBDDamageTextWidget::SetDamageValue(float Damage)
 
     // 텍스트 설정
     DamageText->SetText(FText::FromString(DamageString));
-    // 텍스트 색상 설정
-    DamageText->SetColorAndOpacity(DamageColor);
+
+    // 흰색(1.0)~회색(0.5) 사이의 랜덤 값 생성
+    // 모든 채널(R,G,B)에 동일한 값을 적용하여 흰색~회색 계열 생성
+    float RandomGrayValue = FMath::RandRange(0.5f, 1.0f);
+    FLinearColor RandomColor = FLinearColor(RandomGrayValue, RandomGrayValue, RandomGrayValue, 1.0f);
+
+    // 랜덤 색상 적용
+    DamageText->SetColorAndOpacity(FSlateColor(RandomColor));
+
+    // 랜덤 폰트 크기 생성 (기본 크기 +/- 5)
+    float RandomFontSize = FontSize + FMath::RandRange(-5.0f, 5.0f);
+
+    // 최소 크기 보장
+    if (RandomFontSize < 15.0f)
+    {
+        RandomFontSize = 15.0f;
+    }
+
+    // 랜덤 폰트 크기 적용
+    DamageText->SetFont(FSlateFontInfo(DamageText->GetFont().FontObject, RandomFontSize));
+
+    UE_LOG(LogTemp, Warning, TEXT("DamageTextLog Applied random gray value: %f, random size: %f"), RandomGrayValue, RandomFontSize);
 }

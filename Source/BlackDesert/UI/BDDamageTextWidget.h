@@ -31,8 +31,7 @@ protected:
 
     // 데미지 색상
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI|Damage")
-    FSlateColor DamageColor = FSlateColor(FLinearColor(1.0f, 0.8f, 0.0f, 1.0f)); // 기본 노란색
-
+    FSlateColor DamageColor = FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.0f)); 
     // 폰트 크기
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI|Damage")
     float FontSize = 20.0f;

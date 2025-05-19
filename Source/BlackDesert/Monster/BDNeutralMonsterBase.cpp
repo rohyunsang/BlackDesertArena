@@ -80,6 +80,7 @@ float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& 
 	// 랜덤하게 약간 오프셋을 주어 여러 데미지가 겹치지 않도록 함
 	SpawnLocation.X += FMath::RandRange(-20.0f, 20.0f);
 	SpawnLocation.Y += FMath::RandRange(-20.0f, 20.0f);
+	SpawnLocation.Y -= 300.0f; // offset 
 	SpawnLocation.Z += 100.0f; // 캐릭터 머리 위에 표시
 
 	// 데미지 텍스트 액터 스폰
@@ -98,6 +99,7 @@ float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& 
 	{
 		HealthComp->ApplyDamage(DamageAmount);
 	}
+
 	return DamageAmount;
 }
 
