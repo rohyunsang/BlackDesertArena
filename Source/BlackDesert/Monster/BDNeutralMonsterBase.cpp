@@ -14,6 +14,7 @@
 #include "Character/Attribute/BDAttributeSet.h"
 #include "BlackDesertCharacter.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Actor/BDDamageText.h"
 
 ABDNeutralMonsterBase::ABDNeutralMonsterBase()
 {
@@ -73,6 +74,25 @@ void ABDNeutralMonsterBase::HandleDeath()
 float ABDNeutralMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT(" TakeDamage: %.1f"), DamageAmount);
+
+	// 데미지 텍스트 생성
+	FVector SpawnLocation = GetActorLocation();
+	// 랜덤하게 약간 오프셋을 주어 여러 데미지가 겹치지 않도록 함
+	SpawnLocation.X += FMath::RandRange(-20.0f, 20.0f);
+	SpawnLocation.Y += FMath::RandRange(-20.0f, 20.0f);
+	SpawnLocation.Z += 100.0f; // 캐릭터 머리 위에 표시
+
+	// 데미지 텍스트 액터 스폰
+	ABDDamageText* DamageText = GetWorld()->SpawnActor<ABDDamageText>(
+		ABDDamageText::StaticClass(),
+		SpawnLocation,
+		FRotator::ZeroRotator
+	);
+
+	if (DamageText)
+	{
+		DamageText->SetDamageText(DamageAmount);
+	}
 
 	if (HealthComp)
 	{

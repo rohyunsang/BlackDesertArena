@@ -8,6 +8,7 @@
 #include "BDHUDUI.generated.h"
 
 class UWidget;
+class UTextBlock;
 
 /**
  * 
@@ -44,5 +45,5 @@ protected:
     // 게임 인스턴스 참조 캐싱
     UPROPERTY()
     UBDGameInstance* GameInstanceRef;
-	
+
 };

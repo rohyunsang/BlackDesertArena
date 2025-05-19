@@ -14,7 +14,8 @@ public class BlackDesert : ModuleRules
 			"GameplayAbilities", "GameplayTags", "GameplayTasks",
             "AIModule",
             "Niagara",
-            "AnimGraphRuntime"
+            "AnimGraphRuntime",
+            "SlateCore"
             /*,
             "OnlineSubsystem",
             "OnlineSubsystemEOS",

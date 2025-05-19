@@ -22,6 +22,7 @@
 #include "Item/BDItemBase.h"
 #include "UI/BDInventoryWidget.h"
 #include "UI/BDInventorySlotWidget.h"
+#include "Actor/BDDamageText.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -187,8 +188,7 @@ void ABlackDesertCharacter::BeginPlay()
 					if (AttributeSet)
 					{
 						UE_LOG(LogTemp, Log, TEXT("BD_LOG AttributeSet"));
-						float HealthPercent = AttributeSet->GetHealth() / FMath::Max(1.0f, AttributeSet->GetMaxHealth());
-						HealthBarWidget->SetHealthPercent(HealthPercent);
+						HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
 					}
 				}
 			}
@@ -203,6 +203,9 @@ void ABlackDesertCharacter::BeginPlay()
 		// ±âº»ÀûÀ¸·Î´Â ¹Ì´Ï¸Ê ¼û±è »óÅÂ·Î ½ÃÀÛ
 		bIsMiniMapVisible = false;
 	}
+
+
+	// Testing will fix(delete)
 }
 
 void ABlackDesertCharacter::InitializeAbilities()
@@ -392,7 +395,7 @@ void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth)
 	if (HealthBarWidget)
 	{
 		float HealthPercent = Health / FMath::Max(1.0f, MaxHealth);
-		HealthBarWidget->SetHealthPercent(HealthPercent);
+		HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
 
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG Health Widget Updated: %.1f%% (%.1f/%.1f)"),
 			HealthPercent * 100.0f, Health, MaxHealth);

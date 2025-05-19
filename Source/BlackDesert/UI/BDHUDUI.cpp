@@ -5,6 +5,8 @@
 #include "Game/BDGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/Widget.h"
+#include "Actor/BDDamageText.h"
+#include "Components/TextBlock.h"
 
 UBDHUDUI::UBDHUDUI(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
