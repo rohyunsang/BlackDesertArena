@@ -37,5 +37,9 @@
 			"Name": "Fab",
 			"Enabled": false
 		}
+	],
+	"TargetPlatforms": [
+		"Android",
+		"Windows"
 	]
 }

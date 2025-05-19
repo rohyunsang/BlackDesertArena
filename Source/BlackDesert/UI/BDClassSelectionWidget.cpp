@@ -76,7 +76,7 @@ void UBDClassSelectionWidget::OnStartGameButtonClicked()
         // 困连 力芭 - UI俊辑 困连 昏力
         RemoveFromParent();
 
-        GameInstance->LoadGameLevel("Main");
+        GameInstance->LoadGameLevel("BattleMap");
     }
 }
 

@@ -24,7 +24,7 @@
 #include "UI/BDInventorySlotWidget.h"
 #include "Actor/BDDamageText.h"
 
-DEFINE_LOG_CATEGORY(LogTemplateCharacter);
+// DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
 // ABlackDesertCharacter
@@ -248,7 +248,7 @@ void ABlackDesertCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	}
 	else
 	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		// UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
 
@@ -294,7 +294,7 @@ void ABlackDesertCharacter::Dash()
 	if (Controller)
 	{
 		FVector DashDirection = GetActorForwardVector();
-		float DashDistance = 1200.f; // 원하는 거리 조절 가능
+		float DashDistance = 1800.f; // 원하는 거리 조절 가능
 		FVector DashTarget = GetActorLocation() + DashDirection * DashDistance;
 
 		LaunchCharacter(DashDirection * DashDistance, true, true);
