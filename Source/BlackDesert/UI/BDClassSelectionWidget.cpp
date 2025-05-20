@@ -101,13 +101,13 @@ void UBDClassSelectionWidget::UpdateUI()
         switch (CurrentSelectedClass)
         {
         case EPlayerClass::Fletcher:
-            ClassText = TEXT("Selected: Fletcher");
+            ClassText = TEXT("Fletcher");
             break;
         case EPlayerClass::Titan:
-            ClassText = TEXT("Selected: Titan");
+            ClassText = TEXT("Titan");
             break;
         case EPlayerClass::Igneous:
-            ClassText = TEXT("Selected: Igneous");
+            ClassText = TEXT("Igneous");
             break;
         default:
             ClassText = TEXT("Select a Class");

@@ -31,6 +31,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
     UTexture2D* EmptySlotTexture;
 
+
+
     int32 SlotIndex;
 
     // 드래그 앤 드롭 관련 함수들
