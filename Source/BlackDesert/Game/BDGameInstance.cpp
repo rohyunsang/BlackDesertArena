@@ -5,7 +5,7 @@
 //#include "OnlineSubsystem.h"
 //#include "Interfaces/OnlineIdentityInterface.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "GameFramework/GameUserSettings.h"
 
 UBDGameInstance::UBDGameInstance()
 {
@@ -19,6 +19,14 @@ void UBDGameInstance::Init()
     SelectedPlayerClass = EPlayerClass::None;
 
     // TryLoginWithDeviceId(); Be Later 
+
+    // 해상도 강제 설정
+    if (GEngine && GEngine->GameUserSettings)
+    {
+        GEngine->GameUserSettings->SetScreenResolution(FIntPoint(1250, 720));
+        GEngine->GameUserSettings->SetFullscreenMode(EWindowMode::Windowed); // 또는 Fullscreen, Windowed
+        GEngine->GameUserSettings->ApplySettings(false); // true이면 디스크에 저장
+    }
 }
 
 

@@ -35,15 +35,15 @@ protected:
     UPROPERTY(meta = (BindWidget))
     UProgressBar* PhaseProgressBar;
 
-    UPROPERTY(meta = (BindWidget))
-    UTextBlock* CurrentRadiusText;
-
-    UPROPERTY(meta = (BindWidget))
-    UTextBlock* NextRadiusText;
-
 private:
     UPROPERTY()
     ABDSafeZoneActor* SafeZoneActor;
 
     FString FormatTime(float TimeInSeconds) const;
+
+
+public:
+    // 색상 정의
+    static const FLinearColor CurrentPhaseColor;    // 007FFFFF - 청록색 (현재 페이즈)
+    static const FLinearColor NextPhaseWaitColor;   // FF2A30FF - 빨간색 (다음 페이즈 대기)
 };

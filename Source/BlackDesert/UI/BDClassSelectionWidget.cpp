@@ -101,13 +101,13 @@ void UBDClassSelectionWidget::UpdateUI()
         switch (CurrentSelectedClass)
         {
         case EPlayerClass::Fletcher:
-            ClassText = TEXT("");   // 일단 직업 표시 없애기 . 
+            ClassText = TEXT("Selected: Fletcher");
             break;
         case EPlayerClass::Titan:
-            ClassText = TEXT("");
+            ClassText = TEXT("Selected: Titan");
             break;
         case EPlayerClass::Igneous:
-            ClassText = TEXT("");
+            ClassText = TEXT("Selected: Igneous");
             break;
         default:
             ClassText = TEXT("Select a Class");
