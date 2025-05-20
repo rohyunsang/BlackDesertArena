@@ -188,7 +188,7 @@ void ABlackDesertCharacter::BeginPlay()
 					if (AttributeSet)
 					{
 						UE_LOG(LogTemp, Log, TEXT("BD_LOG AttributeSet"));
-						HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
+						HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth(), 1);
 					}
 				}
 			}
@@ -390,12 +390,12 @@ float ABlackDesertCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 
 
 // Add this new function to handle health changes
-void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth)
+void ABlackDesertCharacter::HandleHealthChanged(float Health, float MaxHealth, int CurLevel)
 {
 	if (HealthBarWidget)
 	{
 		float HealthPercent = Health / FMath::Max(1.0f, MaxHealth);
-		HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
+		HealthBarWidget->UpdateUI(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth(), CurLevel);
 
 		UE_LOG(LogTemp, Log, TEXT("BD_LOG Health Widget Updated: %.1f%% (%.1f/%.1f)"),
 			HealthPercent * 100.0f, Health, MaxHealth);

@@ -20,7 +20,7 @@ class BLACKDESERT_API UBDHealthBarWidget : public UUserWidget
 public:
 	// 체력 업데이트용 함수
 	UFUNCTION(BlueprintCallable)
-	void UpdateUI(float Health, float MaxHealth);
+	void UpdateUI(float Health, float MaxHealth, int CurLevel);
 
 protected:
 	// 바인딩할 ProgressBar 변수 (UMG에서 BindWidget 체크박스 필요)
@@ -29,4 +29,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HPText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LevelText;
 };

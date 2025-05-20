@@ -33,7 +33,7 @@ public:
 
 	// Damage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float Damage = 10.0f;
+	float Damage = 100.0f;
 
 	// Collision Callback
 	UFUNCTION()

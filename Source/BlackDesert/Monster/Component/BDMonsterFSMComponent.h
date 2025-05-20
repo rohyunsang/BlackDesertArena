@@ -47,8 +47,11 @@ private:
 	float LastAttackTime = 0.f;
 	float AttackCooldown = 2.f; // 1초 쿨타임
 	float AttackRange = 300.f;  // 공격시 범위 
-	float AttackDamage = 10.f;
 	bool bDeadHandled = false;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	float AttackDamage = 10.f;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")

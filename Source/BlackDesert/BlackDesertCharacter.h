@@ -197,7 +197,7 @@ public:
 public:
 	// Attribute event handlers
 	UFUNCTION()
-	void HandleHealthChanged(float Health, float MaxHealth);
+	void HandleHealthChanged(float Health, float MaxHealth, int CurLevel);
 
 	UFUNCTION()
 	void HandleLevelChanged(int32 NewLevel, float CurrentXP, float RequiredXP);

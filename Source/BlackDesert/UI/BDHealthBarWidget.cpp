@@ -5,7 +5,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
-void UBDHealthBarWidget::UpdateUI(float Health, float MaxHealth)
+void UBDHealthBarWidget::UpdateUI(float Health, float MaxHealth, int CurLevel)
 {
 	if (HealthProgressBar && MaxHealth > 0.0f)
 	{
@@ -17,5 +17,11 @@ void UBDHealthBarWidget::UpdateUI(float Health, float MaxHealth)
 	{
 		const FString HPString = FString::Printf(TEXT("%.0f / %.0f"), Health, MaxHealth);
 		HPText->SetText(FText::FromString(HPString));
+	}
+
+	if (LevelText)
+	{
+		int32 CurLevel = 5; // 예시 레벨 값
+		LevelText->SetText(FText::FromString(FString::Printf(TEXT("Lv. %d"), CurLevel)));
 	}
 }

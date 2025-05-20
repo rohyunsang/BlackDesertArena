@@ -70,7 +70,7 @@ void UBDAttributeSet::InitializeLevel(int32 StartLevel)
 
 	// 이벤트 발생
 	OnLevelChanged.Broadcast(StartLevel, XP.GetCurrentValue(), NextLevelXP.GetCurrentValue());
-	OnHealthChanged.Broadcast(Health.GetCurrentValue(), MaxHealth.GetCurrentValue());
+	OnHealthChanged.Broadcast(Health.GetCurrentValue(), MaxHealth.GetCurrentValue(), StartLevel);
 }
 
 void UBDAttributeSet::AddXP(float XPAmount)
@@ -149,6 +149,8 @@ void UBDAttributeSet::HandleLevelUp()
 	// 최대 체력 업데이트
 	UpdateMaxHealth();
 
+	// 여기서 그냥 BDHUDUI의 변수 접근, 데이터 전달. 
+
 	// 이벤트 발생
 	OnLevelChanged.Broadcast(CurrentLevel, CurrentXP, RequiredXP);
 
@@ -176,7 +178,7 @@ void UBDAttributeSet::UpdateMaxHealth()
 	Health.SetBaseValue(NewHealth);
 
 	// 이벤트 발생
-	OnHealthChanged.Broadcast(NewHealth, NewMaxHealth);
+	OnHealthChanged.Broadcast(NewHealth, NewMaxHealth, CurrentLevel);
 
 	UE_LOG(LogTemp, Log, TEXT("Max Health updated to: %f for level %d"), NewMaxHealth, CurrentLevel);
 }
@@ -218,7 +220,7 @@ void UBDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			UE_LOG(LogTemp, Warning, TEXT("BD_LOG %s Current Health: %.1f"), *OwnerActor->GetName(), NewHealth);
 		}
 		// Broadcast health change
-		OnHealthChanged.Broadcast(NewHealth, MaxHealth.GetCurrentValue());
+		OnHealthChanged.Broadcast(NewHealth, MaxHealth.GetCurrentValue(), FMath::FloorToInt(Level.GetCurrentValue()));
 		if (NewHealth <= 0.0f)
 		{
 			// 사망 처리
