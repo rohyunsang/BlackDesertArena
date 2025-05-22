@@ -21,7 +21,6 @@ void UBDHealthBarWidget::UpdateUI(float Health, float MaxHealth, int CurLevel)
 
 	if (LevelText)
 	{
-		int32 CurLevel = 5; // 예시 레벨 값
 		LevelText->SetText(FText::FromString(FString::Printf(TEXT("Lv. %d"), CurLevel)));
 	}
 }

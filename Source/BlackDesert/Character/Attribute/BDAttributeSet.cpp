@@ -220,7 +220,7 @@ void UBDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			UE_LOG(LogTemp, Warning, TEXT("BD_LOG %s Current Health: %.1f"), *OwnerActor->GetName(), NewHealth);
 		}
 		// Broadcast health change
-		OnHealthChanged.Broadcast(NewHealth, MaxHealth.GetCurrentValue(), FMath::FloorToInt(Level.GetCurrentValue()));
+		OnHealthChanged.Broadcast(NewHealth, MaxHealth.GetCurrentValue(), Level.GetCurrentValue());
 		if (NewHealth <= 0.0f)
 		{
 			// »ç¸Á Ã³¸®
