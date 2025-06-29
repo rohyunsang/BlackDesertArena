@@ -47,5 +47,9 @@ public:
 
 private:
 	void TryLoginWithDeviceId();
-	
+   
+public:
+    void CreateSession();
+    void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+
 };

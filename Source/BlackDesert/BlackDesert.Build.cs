@@ -15,13 +15,12 @@ public class BlackDesert : ModuleRules
             "AIModule",
             "Niagara",
             "AnimGraphRuntime",
-            "SlateCore"
-            /*,
+            "SlateCore",            
             "OnlineSubsystem",
             "OnlineSubsystemEOS",
             "OnlineSubsystemUtils",
             "Sockets",
-            "Networking"*/
+            "Networking"
 		});
 	}
 }
