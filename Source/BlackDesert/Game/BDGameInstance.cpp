@@ -83,34 +83,62 @@ void UBDGameInstance::LoadGameLevel(FString LevelName)
 
 void UBDGameInstance::TryLoginWithDeviceId()
 {
-    
+
     IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
-    if (!Subsystem) return;
+    if (!Subsystem)
+    {
+        UE_LOG(LogTemp, Error, TEXT("OnlineSubsystem is null "));
+        return;
+    }
 
     IOnlineIdentityPtr Identity = Subsystem->GetIdentityInterface();
-    if (!Identity.IsValid()) return;
+    if (!Identity.IsValid())
+    {
+        UE_LOG(LogTemp, Error, TEXT("IdentityInterface is null "));
+        return;
+    }
 
+    // Device ID 생성
     FString DeviceId = FPlatformMisc::GetDeviceId();
+    UE_LOG(LogTemp, Warning, TEXT("Device ID: %s"), *DeviceId);
+
     FOnlineAccountCredentials Credentials;
     Credentials.Type = TEXT("deviceid");
     Credentials.Id = DeviceId;
     Credentials.Token = TEXT("");
 
-    Identity->OnLoginCompleteDelegates->AddLambda(
-        [](int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error) {
-            if (bWasSuccessful)
-            {
-                UE_LOG(LogTemp, Log, TEXT("? Device ID Login Success: %s"), *UserId.ToString());
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("? Device ID Login Fail: %s"), *Error);
-            }
-        });
+    // 델리게이트를 멤버 변수로 저장 (람다가 소멸되지 않도록)
+    Identity->OnLoginCompleteDelegates->AddUObject(this, &UBDGameInstance::OnDeviceIdLoginComplete);
 
-    Identity->Login(0, Credentials);
+    bool bLoginStarted = Identity->Login(0, Credentials);
+    UE_LOG(LogTemp, Warning, TEXT("login : %s"), bLoginStarted ? TEXT("success") : TEXT("fail"));
+}
 
-    CreateSession();
+void UBDGameInstance::OnDeviceIdLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error)
+{
+    if (bWasSuccessful)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Device ID login success: %s"), *UserId.ToString());
+
+        // 로그인 성공 후에 세션 생성
+        CreateSession();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Device ID login fail : %s"), *Error);
+
+        // 실패 시 대안: LAN 세션으로 진행
+        // CreateLANSession();
+    }
+
+    // 델리게이트 해제
+    if (IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get())
+    {
+        if (IOnlineIdentityPtr Identity = Subsystem->GetIdentityInterface())
+        {
+            Identity->OnLoginCompleteDelegates->RemoveAll(this);
+        }
+    }
 }
 
 void UBDGameInstance::CreateSession() 
@@ -168,7 +196,7 @@ void UBDGameInstance::CreateSession()
         SelectedClassName = TEXT("None");
         break;
     }
-    SessionSettings->Set(FName("SelectedClass"), SelectedClassName, EOnlineDataAdvertisementType::ViaOnlineService);
+    //SessionSettings->Set(FName("SelectedClass"), SelectedClassName, EOnlineDataAdvertisementType::ViaOnlineService);
 
     // 세션 생성 완료 델리게이트 바인딩
     Sessions->OnCreateSessionCompleteDelegates.AddUObject(this, &UBDGameInstance::OnCreateSessionComplete);

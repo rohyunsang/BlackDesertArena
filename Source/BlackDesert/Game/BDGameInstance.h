@@ -51,5 +51,5 @@ private:
 public:
     void CreateSession();
     void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-
+    void OnDeviceIdLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
 };
